@@ -13,8 +13,9 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  if: false
   reusable_workflow_job:
     runs-on: ubuntu-latest
+    if: false
     steps:
     - name: Ai ai aiai
+      run: echo "oi"
