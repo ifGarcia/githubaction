@@ -13,15 +13,15 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  job_call-workflow-passing-data:
+  job_call-workflow:
     uses: ifGarcia/reusable_workflow/.github/workflows/chama.yml@main
     #with:
       #config-path: .github/labeler.yml
       
   job_imprime_vars:
-    needs: [job_call-workflow-passing-data]
+    needs: [job_call-workflow]
     runs-on: ubuntu-latest
     steps:
     - name: Config
       run: |
-        echo "${{ needs.job_call-workflow-passing-data.outputs.outputs1-VAR_OLA }}"
+        echo "${{ needs.job_call-workflow.outputs.outputs1-VAR_OLA }}"
