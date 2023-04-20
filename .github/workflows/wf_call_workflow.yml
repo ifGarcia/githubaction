@@ -13,7 +13,7 @@ jobs:
     uses: ifGarcia/reusable_workflow/.github/workflows/recebe_var.yml@main
     with:
       var_recebe_teste: "Variavel Testes enviada por input."
-      #var_manda_environment: DEV
+      var_recebe_environment: DEV
     secrets: inherit
         
   job_imprime_vars:
