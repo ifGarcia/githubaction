@@ -4,6 +4,9 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
+  
+env:
+  branch: ${{ github.head_ref || github.ref_name }}
 
 jobs:
   job_call-workflow:
