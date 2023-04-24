@@ -6,7 +6,7 @@ on:
 jobs:
   job_set_environment:
     runs-on: ubuntu-latest
-    environment: ""
+    environment: default
 
     steps:
       - name: Imprime oi
