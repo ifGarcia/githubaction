@@ -1,0 +1,14 @@
+name: Teste
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  job_set_environment:
+    runs-on: ubuntu-latest
+    environment: ""
+
+    steps:
+      - name: Imprime oi
+        run: |
+          echo "oi"
