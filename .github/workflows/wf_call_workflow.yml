@@ -10,7 +10,7 @@ env:
 
 jobs:
   job_call-workflow:
-    name: ""
+    name: Nome Chama WF
     uses: ifGarcia/reusable_workflow/.github/workflows/chama.yml@main
       
   job_call-workflow2:
