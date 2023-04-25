@@ -6,7 +6,7 @@ on:
 jobs:
   job_teste:
     runs-on: ubuntu-latest
-    environment: DEV
+    environment:
 
     steps:
       - name: Imprime oi
