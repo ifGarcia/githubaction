@@ -12,3 +12,4 @@ jobs:
       - name: Imprime oi
         run: |
           echo "oi"
+          echo "${{ vars.ENVIRONMENT_VAR }}"
