@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  "":
+  job_teste:
     runs-on: ubuntu-latest
     environment: default
 
