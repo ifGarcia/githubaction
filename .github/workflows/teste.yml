@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   
 env:
-  aaaaa: ""
+  branch: ""
   
 jobs:
   job_teste:
     runs-on: ubuntu-latest
-    environment: ${{ env.aaaaa }}
+    environment: ${{ env.branch }}
 
     steps:
       - name: Imprime oi
