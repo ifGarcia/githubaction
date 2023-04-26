@@ -9,7 +9,7 @@ env:
 jobs:
   job_teste:
     runs-on: ubuntu-latest
-    environment: env.env
+    environment: ${{ env.env }}
 
     steps:
       - name: Imprime oi
