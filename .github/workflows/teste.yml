@@ -9,10 +9,11 @@ env:
 jobs:
   job_teste:
     runs-on: ubuntu-latest
-    environment: ${{ env.branch }}
+    environment:
 
     steps:
       - name: Imprime oi
         run: |
           echo "oi"
           echo "${{ vars.ENVIRONMENT_VAR }}"
+          echo "${{ env.branch }}"
