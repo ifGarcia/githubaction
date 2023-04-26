@@ -3,10 +3,13 @@ name: Teste
 on:
   workflow_dispatch:
   
+env:
+  env: ""
+  
 jobs:
   job_teste:
     runs-on: ubuntu-latest
-    environment:
+    environment: env.env
 
     steps:
       - name: Imprime oi
