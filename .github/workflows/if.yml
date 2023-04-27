@@ -19,4 +19,4 @@ jobs:
         echo "build_${{ vars.ENVIRONMENT_VAR.lowercase }}"
         echo "build_${{ vars.ENVIRONMENT_VAR }}.lowercase"
         echo "build_${{ vars.ENVIRONMENT_VAR }}.lowercase()"
-        $vars.ENVIRONMENT_VAR
+        ${ vars.ENVIRONMENT_VAR }
