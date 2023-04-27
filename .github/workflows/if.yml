@@ -15,8 +15,9 @@ jobs:
     steps:
     - name: Ai ai aiai
       run: |
+        build_${ ${{ vars.ENVIRONMENT_VAR }},, }
+        build_${vars.ENVIRONMENT_VAR}
         build_${{ vars.ENVIRONMENT_VAR }}
-        build_$vars.ENVIRONMENT_VAR
         echo build_${{ vars.ENVIRONMENT_VAR.lowercase }}
         echo build_${{ vars.ENVIRONMENT_VAR }}
         echo ${{ vars.ENVIRONMENT_VAR.lowercase }}
