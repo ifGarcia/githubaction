@@ -16,4 +16,5 @@ jobs:
     - name: Ai ai aiai
       run: |
         echo build_${{ vars.ENVIRONMENT_VAR.lowercase }}
+        echo build_${{ vars.ENVIRONMENT_VAR }}
         echo ${{ vars.ENVIRONMENT_VAR.lowercase }}
