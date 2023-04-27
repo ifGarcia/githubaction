@@ -17,4 +17,4 @@ jobs:
       run: |
         string="${{ vars.ENVIRONMENT_VAR }}"
         string=${string,,}
-        build_$string
+        build_${string}
