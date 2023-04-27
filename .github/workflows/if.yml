@@ -15,7 +15,8 @@ jobs:
     steps:
     - name: Ai ai aiai
       run: |
-        tolower(build_${{ vars.ENVIRONMENT_VAR }})
+        tolower("AAAAAAAAA")
+        tolower(${{ vars.ENVIRONMENT_VAR }})
         build_${{ vars.ENVIRONMENT_VAR }}.lowercase
         build_${{ vars.ENVIRONMENT_VAR }}.lowercase()
         ${{ vars.ENVIRONMENT_VAR }}.lowercase()
