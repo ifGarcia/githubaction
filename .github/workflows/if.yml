@@ -15,4 +15,7 @@ jobs:
     steps:
     - name: Ai ai aiai
       run: |
-        build_${ "${{ vars.ENVIRONMENT_VAR }}",, }
+        string="${{ vars.ENVIRONMENT_VAR }}"
+        echo "action_state=${string^}" >> "$GITHUB_ENV"
+        echo "action_state=yellow" >> "$GITHUB_ENV"
+        build_${{ env.action_state }}
