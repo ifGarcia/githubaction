@@ -17,5 +17,5 @@ jobs:
       run: |
         string="${{ vars.ENVIRONMENT_VAR }}"
         echo "action_state=${string^}" >> "$GITHUB_ENV"
-        echo "action_state=yellow" >> "$GITHUB_ENV"
+        echo "${{ env.action_state }}"
         build_${{ env.action_state }}
