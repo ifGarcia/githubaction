@@ -15,6 +15,6 @@ jobs:
     steps:
     - name: Ai ai aiai
       run: |
-        string="${{ vars.ENVIRONMENT_VAR }}"
-        string=${string,,}
-        build_${string}
+        environment_build="${{ vars.ENVIRONMENT_VAR }}"
+        environment_build=${environment_build,,}
+        build_${environment_build}
