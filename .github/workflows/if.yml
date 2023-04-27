@@ -18,5 +18,5 @@ jobs:
         string="${{ vars.ENVIRONMENT_VAR }}"
         echo "action_state=${string,,}" >> "$GITHUB_ENV"
         echo "${{ env.action_state }}"
-        echo "${string}"
+        echo "${string,,}"
       #build_${{ env.action_state }}
