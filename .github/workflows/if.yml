@@ -17,7 +17,7 @@ jobs:
       run: |
         echo "oi"
         echo "build_${{ vars.ENVIRONMENT_VAR.lowercase }}"
-        echo "build_${{ vars.ENVIRONMENT_VAR.lowercase }}.lowercase"
+        echo "build_${{ vars.ENVIRONMENT_VAR }}.lowercase"
         echo "build_${{ vars.ENVIRONMENT_VAR }}.lowercase()"
         echo "build_${{ vars.ENVIRONMENT_VAR.lowercase() }}"
         ng buld_${{ vars.ENVIRONMENT_VAR.lowercase }}
