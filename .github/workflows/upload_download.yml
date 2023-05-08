@@ -1,0 +1,31 @@
+name: upload_download
+
+on:
+  workflow_dispatch:
+  
+jobs:
+
+  job_upload:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Upload
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: release
+          path: ${{ github.workspace }}
+          
+  job_download:
+      needs: [job_upload]
+      runs-on: ubuntu-latest
+      
+      steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v2.1.1
+        with:
+          name: release
+          path: ${{ github.workspace }}
+          
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: ${{ github.workspace }}
