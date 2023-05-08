@@ -33,7 +33,7 @@ jobs:
         uses: actions/download-artifact@v2.1.1
         with:
           name: release
-          path: ${{ github.workspace }}/release.zip
+          path: ${{ github.workspace }}
           
       - name: Display structure of downloaded files
         run: ls -R
