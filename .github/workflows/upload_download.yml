@@ -12,11 +12,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
         
+      - run: bash zip -r release.zip ${{ github.workspace }}
+        
       - name: Upload
         uses: actions/upload-artifact@v3.1.2
         with:
           name: release
-          path: ${{ github.workspace }}
+          path: ${{ github.workspace }}/release.zip
           
   job_download:
       needs: [job_upload]
