@@ -9,6 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: ${{ github.workspace }}
+        
       - name: Upload
         uses: actions/upload-artifact@v3.1.2
         with:
