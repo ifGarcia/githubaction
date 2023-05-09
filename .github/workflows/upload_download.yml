@@ -12,7 +12,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
         
-      - run: zip -r release.zip ${{ github.workspace }}
+      #- run: zip -r release.zip ${{ github.workspace }}
+      - name: Zip
+        uses: TheDoctor0/zip-release@0.7.1
+        with:
+          filename: release.zip
+          path: ${{ github.workspace }}/
+          directory: ${{ github.workspace }}
+          
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: ${{ github.workspace }}
         
       - name: Upload
         uses: actions/upload-artifact@v3.1.2
