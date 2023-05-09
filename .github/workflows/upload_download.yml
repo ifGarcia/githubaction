@@ -17,7 +17,7 @@ jobs:
         uses: TheDoctor0/zip-release@0.7.1
         with:
           filename: release.zip
-          path: ${{ github.workspace }}/
+          path: ${{ github.workspace }}/.github/workflows/**
           directory: ${{ github.workspace }}
           
       - name: Display structure of downloaded files
