@@ -25,4 +25,5 @@ jobs:
     - run: |
         environment_build="${{ vars.ENVIRONMENT_VAR }}"
         environment_build=${environment_build,,}
-        build_${environment_build}
+        ${environment_build}
+        echo build_${environment_build}
