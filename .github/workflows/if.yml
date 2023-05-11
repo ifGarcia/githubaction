@@ -13,9 +13,9 @@ jobs:
     environment: DEV
     steps:
     - run: |
-        $envName = "${{ vars.ENVIRONMENT_VAR }}"
-        $envName = $envName.ToLower()
-        build_$envName
+        $envName="${{ vars.ENVIRONMENT_VAR }}"
+        $envName=$envName.ToLower()
+        $envName
 
   job_ubuntu:
     runs-on: ubuntu-latest
