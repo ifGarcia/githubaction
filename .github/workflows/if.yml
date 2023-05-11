@@ -1,4 +1,4 @@
-name: teste if
+name: Testes Vars
 
 on:
   push:
@@ -8,13 +8,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  job_testes:
+  job_windows:
+    runs-on: windows-latest
+    environment: DEV
+    steps:
+    - run: |
+        $envName = $env:ENVIRONMENT_NAME
+        $envName = $envName.ToLower()
+        build_$envName
+
+  job_ubuntu:
     runs-on: ubuntu-latest
     environment: DEV
-#    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
-    - name: Ai ai aiai
-      run: |
+    - run: |
         environment_build="${{ vars.ENVIRONMENT_VAR }}"
         environment_build=${environment_build,,}
         build_${environment_build}
