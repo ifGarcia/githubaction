@@ -13,7 +13,7 @@ jobs:
     environment: DEV
     steps:
     - run: |
-        $envName = $env:ENVIRONMENT_NAME
+        $envName = ${{ vars.ENVIRONMENT_VAR }}
         $envName = $envName.ToLower()
         build_$envName
 
