@@ -1,0 +1,21 @@
+name: Login Azure
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  login_job:
+    name: Login
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Azure CLI Action
+        uses: Azure/cli@v1.0.7
+        with:
+          # add tenant ID do service principal
+          inlineScript: az login --service-principal -u  ${{ secrets.SP_CLIENTID }} -p ${{ secrets.SP_SECRET }} --tenant <tenant>
+          
+      - name: Azure CLI Action
+        uses: Azure/cli@v1.0.7
+        with:
+          inlineScript: az resource list --debug
