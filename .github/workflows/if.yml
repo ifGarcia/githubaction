@@ -16,6 +16,7 @@ jobs:
         $envName="${{ vars.ENVIRONMENT_VAR }}"
         $envName=$envName.ToLower()
         $envName
+        echo build_$envName
 
   job_ubuntu:
     runs-on: ubuntu-latest
