@@ -1,0 +1,25 @@
+name: Testes Vars
+
+on:
+  workflow_dispatch:
+
+jobs:
+  job_ubuntu:
+    runs-on: ubuntu-latest
+    environment: DEV
+    steps:
+    - run: |
+        environment_build="${{ vars.ENVIRONMENT_VAR }}"
+        environment_build=${environment_build,,}
+        ${environment_build}
+        echo build_${environment_build}
+#         environment_build="${{ vars.ENVIRONMENT_NAME }}"
+#         environment_build=${environment_build,,}
+#         ng run build_${environment_build}
+
+    - run: |
+        echo "tudo certo 1"
+      if: environment
+    - run: |
+        echo "tudo certo 2"
+      if: environment!
