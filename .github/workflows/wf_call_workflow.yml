@@ -16,7 +16,7 @@ jobs:
   job_call-workflow2:
     uses: ifGarcia/reusable_workflow/.github/workflows/recebe_var.yml@main
     with:
-      var_recebe_teste: "Variavel Testes enviada por input."
+      var_recebe_teste: ${{ github.workspace }}
       var_recebe_environment: DEV
     secrets: inherit
         
