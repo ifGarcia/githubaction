@@ -17,9 +17,10 @@ jobs:
 # #         environment_build=${environment_build,,}
 # #         ng run build_${environment_build}
 
-    - run: |
+    - if: ${{ vars.ENVIRONMENT_NAME }}
+      run: |
         echo "tudo certo 1"
-      if: ${{ vars.ENVIRONMENT_NAME }}
-    - run: |
+      
+    - if: ${{ vars.ENVIRONMENT_NAME }}!
+      run: |
         echo "tudo certo 2"
-      if: ${{ vars.ENVIRONMENT_NAME }}!
