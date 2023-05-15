@@ -20,7 +20,9 @@ jobs:
     - if: ${{ vars.ENVIRONMENT_NAME }}
       run: |
         echo "tudo certo 1"
+        ${{ github.workspace }}
       
     - if: ${{ vars.oi }}
       run: |
         echo "tudo certo 2"
+        ${{ github.workspace }}
