@@ -17,7 +17,7 @@ jobs:
 # #         environment_build=${environment_build,,}
 # #         ng run build_${environment_build}
 
-    - if: ${{ always() && "${{ vars.ENVIRONMENT_NAME }}" }}
+    - if: ${{ always() && vars.ENVIRONMENT_NAME }}
       run: |
         echo "tudo certo 1"
         ${{ github.workspace }}
