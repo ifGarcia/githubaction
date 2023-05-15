@@ -19,7 +19,7 @@ jobs:
 
     - run: |
         echo "tudo certo 1"
-      if: environment
+      if: ${{ vars.ENVIRONMENT_NAME }}
     - run: |
         echo "tudo certo 2"
-      if: environment!
+      if: ${{ vars.ENVIRONMENT_NAME }}!
