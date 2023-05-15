@@ -21,6 +21,6 @@ jobs:
       run: |
         echo "tudo certo 1"
       
-    - if: ${{ vars.ENVIRONMENT_NAME }}!
+    - if: ${{ vars.oi }}!
       run: |
         echo "tudo certo 2"
