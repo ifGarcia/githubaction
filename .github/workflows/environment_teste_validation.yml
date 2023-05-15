@@ -1,4 +1,4 @@
-name: Testes Vars
+name: environment_teste_validation
 
 on:
   workflow_dispatch:
