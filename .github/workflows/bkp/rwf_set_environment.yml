@@ -1,0 +1,52 @@
+# workflow que define o Environment com base na branch.
+# <demais branches> ->  ''            (variavel "environment" recebe vazio)
+# main||master      ->  production
+# develop           ->  development
+# release||hotfix   ->  staging
+
+name: Definindo Environment
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    outputs:
+      set_env:
+        description: "Output com o valor referente ao environment"
+        value: ${{ jobs.def_env.outputs.defenv }}
+
+jobs:
+  def_env:
+    name:  Def Environment
+    runs-on: ubuntu-latest
+    outputs:
+      defenv: ${{ steps.getenv.outputs.get_environment }}
+      
+    steps:
+      - #name: Configuration
+        run: |
+          echo 'set_environment=""' >> $GITHUB_ENV
+          
+      - #name: Configuration for master
+        if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'}}
+        run: |
+          echo "set_environment=production" >> $GITHUB_ENV
+          
+      - #name: Configuration for feature
+        if: ${{ contains(github.ref,'refs/heads/feature/') }}
+        run: |
+          echo 'set_environment=""' >> $GITHUB_ENV
+          
+      - #name: Configuration for develop
+        if: ${{ github.ref == 'refs/heads/develop' }}
+        run: |
+          echo "set_environment=development" >> $GITHUB_ENV
+          
+      - #name: Configuration for release or hotfix
+        if: ${{ contains(github.ref,'refs/heads/release/') || contains(github.ref,'refs/heads/hotfix/') }}
+        run: |
+          echo "set_environment=staging" >> $GITHUB_ENV
+      
+      - name: Get Envionment
+        id: getenv
+        run: |
+          echo "get_environment=${{ env.set_environment }}" >> $GITHUB_OUTPUT
