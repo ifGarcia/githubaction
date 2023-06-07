@@ -1,0 +1,78 @@
+name: Pipe TAG
+on: 
+  workflow_dispatch:
+  workflow_call:
+  
+jobs: 
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.getbranch.outputs.branch }}
+    
+    env: 
+      VERSION: ${{ github.ref }}
+      
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3 
+
+    - name: Output current branch name
+      uses: satackey/action-js-inline@v0.0.2
+      id: getbranch
+      with:
+        script: |
+          const core = require('@actions/core')
+
+          const branchArray = process.env.GITHUB_REF.split('/') // (3) ['refs', 'heads', 'release']
+          var branch = branchArray[2] // refs/heads/release → release
+
+          console.log(`branch: ${branch}`)
+          core.setOutput('branch', branch)    
+
+    - name: Create file version
+      if: ${{ contains(github.ref,'refs/heads/release/') || contains(github.ref,'refs/heads/hotfix/') }}
+      run: |        
+       cd .github/
+        # VERIFICA SE ARQUIVO EXISTE       
+        if [ -f releaseInfo ]; then
+          file_version=$(cat releaseInfo)
+          branch_version=$(echo "${VERSION#refs/heads/${{ steps.getbranch.outputs.branch }}/}")
+                
+          # SE ARQUIVO FOR DIFERENTE DA RELEASE VERSION ELE REMOVE E RECRIA
+          if [[ $file_version != $branch_version ]]; then
+          echo "Recreating releaseIndo file"
+          rm releaseInfo  
+          touch releaseInfo
+          echo "${VERSION#refs/heads/${{ steps.getbranch.outputs.branch }}/}" >> releaseInfo
+
+          # Commit file version  
+            git config --local user.name "Github Action"
+            git config --local user.email "action@github.com"
+            git add releaseInfo
+            git commit -m "Update version file" 
+            git push
+          else
+            # MENSAGEM APRESENTADA CASO ARQUIVO SEJA IGUAL A RELEASE VERSION
+            echo "No change in releaseInfo file"  
+          fi
+
+        else
+          # CRIA O ARQUIVO SE NÃO EXISTIR
+          echo "Creating releaseIndo file"
+          touch releaseInfo
+          echo "${VERSION#refs/heads/${{ steps.getbranch.outputs.branch }}/}" >> releaseInfo
+
+          git config --local user.name "Github Action"
+          git config --local user.email "action@github.com"
+          git add releaseInfo
+          git commit -m "Create version file" 
+          git push
+        fi
+            
+    - name: Create Tag
+      if:  github.ref == 'refs/heads/master'
+      run: | 
+        cd .github/ 
+        TAG=$(cat releaseInfo)
+        git tag $TAG
+        git push origin $TAG
