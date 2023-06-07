@@ -1,0 +1,80 @@
+name: Docker Image
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      container_registry_input:
+        description: "URL do ACR para push da imagem"
+        required: true
+        type: string
+      dockerfilePath_input:
+        description: "caminho do Dockerfile"
+        required: true
+        type: string
+      buildcontext_input:
+        description: "caminho do build"
+        required: true
+        type: string
+        
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+jobs:
+  #chama job para selecionar o environment
+  set_environment:
+    uses: ORG/DEVOPS/.github/workflows/rwf_set_environment.yml@main
+  
+  #job de Build Image Docker
+  build-container:
+    name: Container Build
+    needs: [set_environment]
+    runs-on: ubuntu-latest
+    #define o environment selecionado no job anterior
+    environment: ${{ needs.set_environment.outputs.set_env }}
+    
+    env:
+      # definie a branch de build
+      branch: ${{ github.head_ref || github.ref_name }}
+      # define tag baseado no numero do workflow
+      tag: ${{ github.run_number }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Login ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ inputs.container_registry_input }}
+          username: ${{ secrets.ID }}
+          password: ${{ secrets.SECRET }}
+          
+      - name: Build and push Docker image ${{ env.branch }}
+        uses: docker/build-push-action@v4.0.0
+        with:
+          context: ${{ inputs.buildcontext_input }}                               # caminho do build
+          file: ${{ inputs.dockerfilePath_input }}                                # caminho do Dockerfile
+          push: false #${{ vars.PUSH_IMAGE }}                                     
+          tags: |
+            ${{ inputs.container_registry_input }}/${{ vars.IMAGE_DOCKER }}:${{ env.tag }}
+            ${{ inputs.container_registry_input }}/${{ vars.IMAGE_DOCKER }}:latest
+        if: ${{ vars.ENVIRONMENT_NAME }} #build e push para master, develop, release/** e hotfix/**
+        
+      - name: Build Docker image ${{ env.branch }}
+        uses: docker/build-push-action@v4.0.0
+        with:
+          context: ${{ inputs.buildcontext_input }}                               # caminho do build
+          file: ${{ inputs.dockerfilePath_input }}                                # caminho do Dockerfile
+          push: false
+        if: ${{ vars.ENVIRONMENT_NAME }}! #build sempre
+        
+      - uses: act10ns/slack@v1
+        with: 
+          status: ${{ job.status }}
+          channel: ${{ vars.SLACK_CHANNEL }}
+        if: ${{ always() && vars.ENVIRONMENT_NAME }}
+
+  version_tag:
+    needs: build-container
+    uses: ORG/DEVOPS/.github/workflows/rwf_version.yml@main
