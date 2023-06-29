@@ -1,5 +1,3 @@
 # githubaction
 
-teste
-asdsaasd
-dssdasda
+oi
