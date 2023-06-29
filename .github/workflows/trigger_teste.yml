@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - .github/**
     branches:
-      - master
+      - main
       - develop
       - release/**
       - feature/**
