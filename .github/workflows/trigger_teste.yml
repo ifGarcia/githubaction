@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches: [ "main", "feature/**" ]
-    paths-ignore:
-      - '.github/**'
+    paths:
+      - '**'
       - '!.github/**'
 
 jobs:
