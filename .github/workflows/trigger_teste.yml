@@ -3,14 +3,15 @@ name: trigger_teste
 on:
   workflow_dispatch:
   push:
-    paths-ignore:
-      - .github/**
     branches:
       - main
       - develop
       - release/**
       - feature/**
       - hotfix/**
+    paths-ignore:
+      - .github/**
+
 
 jobs:
   job_windows:
