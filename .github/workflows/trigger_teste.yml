@@ -1,23 +1,20 @@
 name: trigger_teste
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - main
-      - develop
-      - release/*
-      - feature/*
-      - hotfix/*
     paths-ignore:
       - .github/**
+    branches:
+      - master
+      - develop
+      - release/**
+      - feature/**
+      - hotfix/**
 
 jobs:
-  job_windows:
-    runs-on: windows-latest
-    environment: DEV
+  job_trigger:
+    runs-on: ubuntu-latest
     steps:
     - run: |
-        $envName="${{ vars.ENVIRONMENT_VAR }}"
-        $envName=$envName.ToLower()
-        $envName
-        echo build_$envName
+        echo oi
