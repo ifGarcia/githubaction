@@ -3,14 +3,9 @@ name: trigger_teste
 on:
   workflow_dispatch:
   push:
+    branches: [ "master", "feature/**" ]
     paths-ignore:
       - .github/**
-    branches:
-      - master
-      - develop
-      - release/**
-      - feature/**
-      - hotfix/**
 
 jobs:
   job_trigger:
