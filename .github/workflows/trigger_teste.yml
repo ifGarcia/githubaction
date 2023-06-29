@@ -1,7 +1,6 @@
 name: trigger_teste
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -11,7 +10,6 @@ on:
       - hotfix/*
     paths-ignore:
       - .github/**
-
 
 jobs:
   job_windows:
