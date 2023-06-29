@@ -6,8 +6,8 @@ on:
     branches:
       - main
       - develop
-      - release/**
-      - 'feature/**'
+      - release/*
+      - feature/*
       - hotfix/**
     paths-ignore:
       - .github/**
