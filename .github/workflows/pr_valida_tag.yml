@@ -30,8 +30,7 @@ jobs:
           echo ${{ github.event.head_commit.message }}
           echo "Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7" | grep -o '[^/]*$'
           stringa="Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7" | grep -o '[^/]*$'
-          echo stringa
-          myString="${{ github.event.head_commit.message }}"
+          myString="Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7"
           read lastElement <<< "${myString##*:}"
           echo "The last element is: $lastElement"
           echo "${{ github.event.head_commit.message }}" | sed 's/#//'
