@@ -13,18 +13,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Imprime tag oi
+#       - name: Imprime tag oi
+#         run: |
+#           echo ${{ github.ref }}
+#           echo ${{ github.run_number }}
+#           echo ${{ github.head_ref }}
+#           echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
+#           echo ${{ github.base_ref }}
+#           echo $GITHUB_EVENT_PATH
+#           echo "'${{ github.ref_name }}' was pushed by '${{ github.event.pusher.name }}'"
+#           echo ${{ github.event.pull_request.head_ref }}
+#           echo ${{ github.event.head_commit.message }}
+          
+      - name: "Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7"
         run: |
-          echo ${{ github.ref }}
-          echo ${{ github.run_number }}
-          echo ${{ github.head_ref }}
-          echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
-          echo ${{ github.base_ref }}
-          echo $GITHUB_EVENT_PATH
-          echo "'${{ github.ref_name }}' was pushed by '${{ github.event.pusher.name }}'"
-          echo ${{ github.event.pull_request.head_ref }}
           echo ${{ github.event.head_commit.message }}
-
+          echo "${{ github.event.head_commit.message }}" | grep -o '[^/]*$'
+          
 
       - name: Foi merge?
         if: github.event.pull_request.merged
