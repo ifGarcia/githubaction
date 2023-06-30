@@ -17,4 +17,4 @@ jobs:
           echo ${{ github.head_ref }}
           echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
           echo ${{ github.base_ref }}
-          echo ${{ github.event.pull_request.base.ref }}
+          echo $GITHUB_EVENT_PATH
