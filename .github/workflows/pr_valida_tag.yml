@@ -32,6 +32,7 @@ jobs:
           myString="${{ github.event.head_commit.message }}"
           read lastElement <<< "${myString##*:}"
           echo "The last element is: $lastElement"
+          echo "${{ github.event.head_commit.message }}" | sed 's/#//'
           
 
       - name: Foi merge?
