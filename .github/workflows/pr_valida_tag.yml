@@ -2,7 +2,10 @@ name: pr_valida_tag
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    types: [ closed ]
 
 jobs:
   job_tag:
@@ -23,7 +26,7 @@ jobs:
 
 
       - name: Foi merge?
-        if: github.event.pull_request.merged == 'true'
+        if: github.event.pull_request.merged
         run: |
           echo "Sim"
           echo ${{ github.event.pull_request.head_ref }}
