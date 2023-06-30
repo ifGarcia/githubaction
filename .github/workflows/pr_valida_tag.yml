@@ -12,11 +12,12 @@ jobs:
     steps:
       - name: Imprime tag
         run: |
-          echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
           echo "${ github.head_ref }"
+        # echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
+          
           
       - name: Create Tag
-        if:  github.ref == 'refs/heads/master'
+#         if:  github.ref == 'refs/heads/main'
         run: | 
           git tag ${ github.head_ref }
-          git push origin ${ github.head_ref }
+        # git push origin ${ github.head_ref }
