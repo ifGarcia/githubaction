@@ -1,10 +1,8 @@
 name: pr_valida_tag
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     types: [ closed ]
 
 jobs:
