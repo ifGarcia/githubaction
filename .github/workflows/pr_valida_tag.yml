@@ -16,3 +16,4 @@ jobs:
           echo ${{ github.run_number }}
           echo ${{ github.head_ref }}
           echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
+          echo ${{ github.base_ref }}
