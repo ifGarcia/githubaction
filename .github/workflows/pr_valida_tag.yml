@@ -18,6 +18,8 @@ jobs:
           echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
           echo ${{ github.base_ref }}
           echo $GITHUB_EVENT_PATH
+          echo "'${{ github.ref_name }}' was pushed by '${{ github.event.pusher.name }}'"
+          echo ${{ github.event.pull_request.head_ref }}
 
 
       - name: Foi merge?
