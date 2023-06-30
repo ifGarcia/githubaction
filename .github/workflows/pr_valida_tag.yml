@@ -16,7 +16,7 @@ jobs:
         # echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
           
           
-      - name: Create Tag
+      - name: Create Tag oi
 #         if:  github.ref == 'refs/heads/main'
         run: | 
           git tag ${ github.head_ref }
