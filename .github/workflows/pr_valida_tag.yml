@@ -1,18 +1,22 @@
 name: pr_valida_tag
 
 on:
-  pull_request:
-    types:
-      - opened
-    branches:
-      - 'main'
+  push:
+    branches: [ "main" ]
 
 jobs:
   job_tag:
-#     if: startsWith(github.head_ref, 'release/')
+    if: startsWith(github.head_ref, 'release/')
     runs-on: ubuntu-latest
 
     steps:
-      - name: Imprime oi
+      - name: Imprime tag
         run: |
           echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
+          echo "${ github.head_ref }"
+          
+      - name: Create Tag
+        if:  github.ref == 'refs/heads/master'
+        run: | 
+          git tag ${ github.head_ref }
+          git push origin ${ github.head_ref }
