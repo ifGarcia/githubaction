@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Imprime tag
         run: |
-          echo "${ github.head_ref }"
+          echo "${ github.ref }"
         # echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
           
           
