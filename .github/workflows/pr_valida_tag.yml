@@ -28,7 +28,7 @@ jobs:
       - name: "Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7"
         run: |
           echo ${{ github.event.head_commit.message }}
-          echo "${{ github.event.head_commit.message }}" | grep -o '[^/]*$'
+          echo "Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7" | grep -o '[^/]*$'
           myString="${{ github.event.head_commit.message }}"
           read lastElement <<< "${myString##*:}"
           echo "The last element is: $lastElement"
