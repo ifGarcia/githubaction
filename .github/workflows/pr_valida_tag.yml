@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Imprime tag
+      - name: Imprime tag oi
         run: |
           echo ${{ github.ref }}
           echo ${{ github.run_number }}
