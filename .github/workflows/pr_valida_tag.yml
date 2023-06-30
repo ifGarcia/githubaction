@@ -1,6 +1,8 @@
 name: pr_valida_tag
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
     types: [ closed ]
@@ -21,6 +23,7 @@ jobs:
           echo $GITHUB_EVENT_PATH
           echo "'${{ github.ref_name }}' was pushed by '${{ github.event.pusher.name }}'"
           echo ${{ github.event.pull_request.head_ref }}
+          echo ${{ github.event.head_commit.message }}
 
 
       - name: Foi merge?
