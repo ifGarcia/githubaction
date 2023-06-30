@@ -31,5 +31,5 @@ jobs:
           myString="Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7"
           read lastElement <<< "${myString##*/}"
           echo "The last element is: $lastElement"
-          echo "v$lastElement-github.run_number"
+          echo "v$lastElement-$github.run_number"
           ${{ github.run_number }}
