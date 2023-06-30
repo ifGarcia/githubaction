@@ -24,3 +24,4 @@ jobs:
         if: github.event.pull_request.merged == 'true'
         run: |
           echo "Sim"
+          echo ${{ github.event.pull_request.head_ref }}
