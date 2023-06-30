@@ -28,15 +28,8 @@ jobs:
       - name: "Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7"
         run: |
           echo ${{ github.event.head_commit.message }}
-          echo "Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7" | grep -o '[^/]*$'
           myString="Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7"
           read lastElement <<< "${myString##*/}"
           echo "The last element is: $lastElement"
-          echo "${{ github.event.head_commit.message }}" | sed 's/#//'
-          
-
-      - name: Foi merge?
-        if: github.event.pull_request.merged
-        run: |
-          echo "Sim"
-          echo ${{ github.event.pull_request.head_ref }}
+          echo "v$lastElement-github.run_number"
+          ${{ github.run_number }}
