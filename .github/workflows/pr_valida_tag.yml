@@ -18,3 +18,9 @@ jobs:
           echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
           echo ${{ github.base_ref }}
           echo $GITHUB_EVENT_PATH
+
+
+      - name: Foi merge?
+        if: github.event.pull_request.merged == 'true'
+        run: |
+          echo "Sim"
