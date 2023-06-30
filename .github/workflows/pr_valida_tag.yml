@@ -3,9 +3,9 @@ name: pr_valida_tag
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-    types: [ closed ]
+#   pull_request:
+#     branches: [ main ]
+#     types: [ closed ]
 
 jobs:
   job_tag:
