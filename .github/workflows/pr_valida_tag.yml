@@ -1,0 +1,19 @@
+name: pr_valida_tag
+
+on:
+  pull_request:
+    types:
+      - opened
+    branches:
+      - 'master'
+
+jobs:
+  job_tag:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Imprime oi
+        run: |
+          echo "oi"
+          echo "${{ vars.ENVIRONMENT_VAR }}"
+          echo "${{ env.branch }}"
