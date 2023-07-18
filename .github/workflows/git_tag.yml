@@ -1,0 +1,38 @@
+name: GIT TAG MASTER
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]
+
+jobs:
+  jobtagteste:
+#     if: github.event.pull_request.merged == true #se foi merge
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        
+      - name: Imprime tag oi
+        run: |
+          echo ${{ github.ref }}
+          echo ${{ github.run_number }}
+          echo ${{ github.head_ref }}
+          echo "${GITHUB_HEAD_REF-${GITHUB_REF##*/}}"
+          echo ${{ github.base_ref }}
+          echo $GITHUB_EVENT_PATH
+          echo "'${{ github.ref_name }}' was pushed by '${{ github.event.pusher.name }}'"
+          echo ${{ github.event.pull_request.head_ref }}
+          echo ${{ github.event.head_commit.message }}
+          
+#       - name: "Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7"
+#         run: |
+#           echo ${{ github.event.head_commit.message }}
+#           myString="Merge pull request #18 from ifGarcia/release/ifGarcia-patch-7"
+#           read lastElement <<< "${myString##*/}"
+#           echo "The last element is: $lastElement"
+#           lastElement="v$lastElement-${{ github.run_number }}"
+#           git tag $lastElement
+#           git push origin $lastElement
