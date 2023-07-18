@@ -12,23 +12,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Branch Master
+      - name: Checkout
         uses: actions/checkout@v3.5.3
-        with:
-          repository: ${{ github.repository }}
-          ref: master
+#         with:
+#           repository: ${{ github.repository }}
+#           ref: main
       
       - name: Criar Tag
         run: |
           echo ${{ github.head_ref }}
           echo ${{ github.base_ref }}
-          git tag $github.base_ref
-          git push origin $lastElement
           read lastElement <<< "${myString##*/}"
           echo "The last element is: $lastElement"
           lastElement="v$lastElement-${{ github.run_number }}"
-          git tag $lastElement
-          git push origin $lastElement
         
 #       - name: Imprime tag oi
 #         run: |
