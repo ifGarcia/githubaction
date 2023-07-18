@@ -22,9 +22,12 @@ jobs:
         run: |
           echo ${{ github.head_ref }}
           echo ${{ github.base_ref }}
+          myString=${{ github.head_ref }}
           read lastElement <<< "${myString##*/}"
           echo "The last element is: $lastElement"
           lastElement="v$lastElement-${{ github.run_number }}"
+          git tag $lastElement
+          git push origin $lastElement
         
 #       - name: Imprime tag oi
 #         run: |
