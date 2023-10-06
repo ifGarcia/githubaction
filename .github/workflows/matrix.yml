@@ -6,20 +6,16 @@ jobs:
   example_matrix:
     strategy:
       matrix:
-        os: [ubuntu-latest,windows-latest]
-        # The include keyword that adds a new variable
-        include:
-          - os: windows-latest
-            node: 16
-            npm: 8
-    runs-on: ${{ matrix.os }}
+        version: [10, 12, 14]
+    runs-on: ubuntu
     
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ matrix.version }}
           
-      - if: ${{ matrix.npm }}
-        run: npm install -g npm@${{ matrix.npm }}
+      - name: oi 1
+        run: echo oi
         
-      - run: npm --version
+      - name: oi 2
+        run: npm --version
