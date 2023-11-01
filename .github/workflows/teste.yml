@@ -13,5 +13,7 @@ jobs:
         run: |
           $vala = 'VAR_'
           $valB = 'ACTION'
+          $envName = $vala + $valB
+          $envName
           $envName = "${{ vars.$vala$valB }}"
           $envName
