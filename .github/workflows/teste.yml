@@ -6,8 +6,8 @@ on:
     paths:
       - '**/teste.yml'
 env:
-  VARIAVEL-VAR: VAR
-  VARIAVEL-NAME: vars.${{ env.VARIAVEL-VAR }}_ACTION
+  VARIAVEL-VAR: VALOR VARIAVEL-VAR
+  VARIAVEL-NAME: VARIAVEL-VAR
   
 jobs:
   job_teste:
@@ -16,7 +16,10 @@ jobs:
     steps:
       - name: Echo VAR_ACTION
         run: |
-          ${{ vars.VARIAVEL-NAME }}
+          VARIAVEL-NAME="${{ env.VARIAVEL-NAME }}"
+          VAR_VALUE="${{ env[VARIAVEL-NAME] }}"
+          echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
+          
         # vala="VAR_"
         # valB="ACTION"
         # envName=$vala$valB
