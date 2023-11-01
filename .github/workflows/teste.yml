@@ -7,7 +7,7 @@ on:
       - '**/teste.yml'
 env:
   VARIAVEL-VAR: VAR
-  VARIAVEL-NAME: vars.${{ env.VARIAVEL-VAR. }}_ACTION
+  VARIAVEL-NAME: vars.${{ env.VARIAVEL-VAR }}_ACTION
   
 jobs:
   job_teste:
