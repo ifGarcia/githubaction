@@ -11,9 +11,9 @@ jobs:
 
       - name: Echo VAR_ACTION
         run: |
-          vala= "VAR_"
-          valB= "ACTION"
-          envName= $vala$valB
+          vala="VAR_"
+          valB="ACTION"
+          envName=$vala$valB
           echo $envName
         # $envName = "${{ vars.$vala$valB }}"
         # $envName
