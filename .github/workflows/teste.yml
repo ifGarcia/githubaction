@@ -15,5 +15,5 @@ jobs:
           $valB = 'ACTION'
           $envName = $vala + $valB
           $envName
-          $envName = "${{ vars.$vala$valB }}"
-          $envName
+        # $envName = "${{ vars.$vala$valB }}"
+        # $envName
