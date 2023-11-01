@@ -2,6 +2,9 @@ name: Teste
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '**/teste.yml'
   
 jobs:
   job_teste:
