@@ -14,7 +14,9 @@ jobs:
 
     steps:
       - run: |
-          ${{ ${{ env.VAR_NAME }} }}
+          VAR_NAME="${{ env.VAR_NAME }}"
+          VAR_VALUE="${{ vars[VAR_NAME] }}"
+          echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
 
   # job_teste:
   #   runs-on: ubuntu-latest
