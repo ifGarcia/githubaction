@@ -5,22 +5,25 @@ on:
   push:
     paths:
       - '**/teste.yml'
+env:
+  VARIAVEL-VAR: VAR
+  VARIAVEL-NAME: vars.${{ env[VARIAVEL-VAR] }}_ACTION
   
 jobs:
   job_teste:
     runs-on: ubuntu-latest
-
+    
     steps:
-
       - name: Echo VAR_ACTION
         run: |
-          vala="VAR_"
-          valB="ACTION"
-          envName=$vala$valB
-          echo $envName
-          echo ${{ vars.VAR_ACTION }}
-          envName="vars.${envName}"
-          ${{ $envName }}
+          ${{ vars.VARIAVEL-NAME }}
+        # vala="VAR_"
+        # valB="ACTION"
+        # envName=$vala$valB
+        # echo $envName
+        # echo ${{ vars.VAR_ACTION }}
+        # envName="vars.${envName}"
+        # ${{ $envName }}
         # envName="${{ ${envName} }}"
           
         # envName="${{ vars." + $envName + " }}"
