@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - run: |
-          ${{ env[VAR_NAME] }}
+          ${{ env.VAR_NAME }}
 
   # job_teste:
   #   runs-on: ubuntu-latest
