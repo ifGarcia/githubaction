@@ -3,17 +3,15 @@ name: Teste
 on:
   workflow_dispatch:
   
-env:
-  branch: a
-  
 jobs:
   job_teste:
     runs-on: ubuntu-latest
-    environment:
 
     steps:
-      - name: Imprime oi
+
+      - name: Echo VAR_ACTION
         run: |
-          echo "oi"
-          echo "${{ vars.ENVIRONMENT_VAR }}"
-          echo "${{ env.branch }}"
+          $vala = 'VAR_'
+          $valB = 'ACTION'
+          $envName = "${{ vars.$vala$valB }}"
+          $envName
