@@ -5,14 +5,13 @@ on:
   push:
     paths:
       - '**/teste.yml'
-env:
-  VARIAVEL-VAR: VALOR VARIAVEL-VAR
-  VARIAVEL-NAME: VARIAVEL-VAR
   
 jobs:
   job_teste:
     runs-on: ubuntu-latest
-    
+    env:
+      VARIAVEL-VAR: VALOR VARIAVEL-VAR
+      VARIAVEL-NAME: VARIAVEL-VAR
     steps:
       - name: Echo VAR_ACTION
         run: |
