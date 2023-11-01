@@ -19,7 +19,8 @@ jobs:
           envName=$vala$valB
           echo $envName
           echo ${{ vars.VAR_ACTION }}
-          envName="${{ vars.${envName} }}"
+          envName="vars.${envName}"
+          envName="${{ ${envName} }}"
           
         # envName="${{ vars." + $envName + " }}"
         # echo "${{ vars." + $envName + " }}"
