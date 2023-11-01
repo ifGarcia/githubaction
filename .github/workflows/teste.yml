@@ -5,30 +5,43 @@ on:
   push:
     paths:
       - '**/teste.yml'
-  
+
 jobs:
-  job_teste:
+  build:
     runs-on: ubuntu-latest
     env:
-      VARIAVEL-VAR: VALOR VARIAVEL-VAR
-      VARIAVEL-NAME: VARIAVEL-VAR
+      VAR1: Valor da variável 1
+      VAR_NAME: VAR1  # O valor desta variável determina a variável a ser chamada
+
     steps:
-      - name: Echo VAR_ACTION
+      - name: Chamar variável env com o valor de outra variável env
         run: |
-          VARIAVEL-NAME="${{ env.VARIAVEL-NAME }}"
-          VAR_VALUE="${{ env[VARIAVEL-NAME] }}"
+          VAR_NAME="${{ env.VAR_NAME }}"
+          VAR_VALUE="${{ env[VAR_NAME] }}"
           echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
+
+  # job_teste:
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     VARIAVEL-VAR: VALOR VARIAVEL-VAR
+  #     VARIAVEL-NAME: VARIAVEL-VAR
+  #   steps:
+  #     - name: Echo VAR_ACTION
+  #       run: |
+  #         VARIAVEL-NAME="${{ env.VARIAVEL-NAME }}"
+  #         VAR_VALUE="${{ env[VARIAVEL-NAME] }}"
+  #         echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
           
-        # vala="VAR_"
-        # valB="ACTION"
-        # envName=$vala$valB
-        # echo $envName
-        # echo ${{ vars.VAR_ACTION }}
-        # envName="vars.${envName}"
-        # ${{ $envName }}
-        # envName="${{ ${envName} }}"
+  #       # vala="VAR_"
+  #       # valB="ACTION"
+  #       # envName=$vala$valB
+  #       # echo $envName
+  #       # echo ${{ vars.VAR_ACTION }}
+  #       # envName="vars.${envName}"
+  #       # ${{ $envName }}
+  #       # envName="${{ ${envName} }}"
           
-        # envName="${{ vars." + $envName + " }}"
-        # echo "${{ vars." + $envName + " }}"
-        # $envName = "${{ vars.$vala$valB }}"
-        # $envName
+  #       # envName="${{ vars." + $envName + " }}"
+  #       # echo "${{ vars." + $envName + " }}"
+  #       # $envName = "${{ vars.$vala$valB }}"
+  #       # $envName
