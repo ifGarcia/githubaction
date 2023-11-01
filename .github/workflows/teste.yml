@@ -10,15 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      VAR1: Valor da variável 1
-      VAR_NAME: VAR1  # O valor desta variável determina a variável a ser chamada
+      VAR_NAME: ${{ env.VAR_ACTION }}_ABC
 
     steps:
-      - name: Chamar variável env com o valor de outra variável env
-        run: |
-          VAR_NAME="${{ env.VAR_NAME }}"
-          VAR_VALUE="${{ env[VAR_NAME] }}"
-          echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
+      - run: |
+          ${{ env.VAR_NAME }}
 
   # job_teste:
   #   runs-on: ubuntu-latest
