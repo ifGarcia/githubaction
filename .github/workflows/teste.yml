@@ -14,8 +14,8 @@ jobs:
 
     steps:
       - run: |
-          ${{ env.VAR_NAME }}
-          ${{ env.NOME_DA_VARIAVEL }}
+          echo ${{ env.VAR_NAME }}
+          echo ${{ env.NOME_DA_VARIAVEL }}
         # VAR_NAME="${{ env.VAR_NAME }}"
         # VAR_VALUE="${{ vars[VAR_NAME] }}"
         # echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
