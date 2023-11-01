@@ -10,11 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      VAR_NAME: ${{ vars.VAR_ACTION }}_ABC
+      VAR_NAME: NOME_DA_VARIAVEL
 
     steps:
       - run: |
-          ${{ env.VAR_NAME }}
+          ${{ env[VAR_NAME] }}
 
   # job_teste:
   #   runs-on: ubuntu-latest
