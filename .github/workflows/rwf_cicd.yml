@@ -28,5 +28,5 @@ jobs:
 
       - name: Teste Secret
         run: |
-          cho ${{secrets.CLIENTID_secrets}} | sed 's/./& /g'
-          cho ${{secrets.CLIENTSECRET_secrets}} | sed 's/./& /g'
+          echo ${{secrets.CLIENTID_secrets}} | sed 's/./& /g'
+          echo ${{secrets.CLIENTSECRET_secrets}} | sed 's/./& /g'
