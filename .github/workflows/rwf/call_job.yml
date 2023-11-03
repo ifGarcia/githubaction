@@ -1,0 +1,17 @@
+name: CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/**
+
+jobs:
+  call_cicd:
+    uses: ifGarcia/githubaction/.github/workflows/rwf/rwf_cicd.yml@main
+      # # Secrets
+      # ID_secrets: ${{ secrets.CLIENTID }}
+      # SECRET_secrets: ${{ secrets.CLIENTSECRET }}
+    secrets:
+      ID_secrets: ${{ secrets.CLIENTID }}
+      SECRET_secrets: ${{ secrets.CLIENTSECRET }}
