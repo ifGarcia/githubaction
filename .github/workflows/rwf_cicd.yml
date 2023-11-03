@@ -19,7 +19,6 @@ on:
 
 jobs:
   job1:
-    name: Job Run
     runs-on: windows-latest
     
     steps:
