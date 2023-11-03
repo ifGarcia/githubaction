@@ -9,7 +9,7 @@ on:
 
 jobs:
   call_cicd:
-    uses: ifGarcia/githubaction/.github/workflows/rwf/rwf_cicd.yml@main
+    uses: ifGarcia/githubaction/.github/workflows/rwf_cicd.yml@main
     with:
       name_app_input: NomeDoApp
       # # Secrets
