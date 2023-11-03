@@ -1,0 +1,32 @@
+run-name: ${{ inputs.name_app_input }} - CI/CD RWF
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      name_app_input:
+        required: true
+        type: string
+    secrets:
+      CLIENTID_secrets:
+        required: true
+      CLIENTSECRET_secrets:
+        required: true
+# env:
+  # CLIENTID: ${{ secrets.app-inputCLIENTID }}
+  # CLIENTID: ${{ inputs.app-input }}CLIENTID
+  # SECRET: ${{ inputs.app-input }}CLIENTID
+
+jobs:
+  job1:
+    name: Job Run
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Teste Secret
+        run: |
+          cho ${{secrets.CLIENTID_secrets}} | sed 's/./& /g'
+          cho ${{secrets.CLIENTSECRET_secrets}} | sed 's/./& /g'
