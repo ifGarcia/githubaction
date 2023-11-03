@@ -1,4 +1,4 @@
-name: CI/CD
+name: Secrets RWF
 
 on:
   workflow_dispatch:
