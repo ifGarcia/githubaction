@@ -12,9 +12,7 @@ jobs:
     uses: ifGarcia/githubaction/.github/workflows/rwf_cicd.yml@main
     with:
       name_app_input: NomeDoApp
-      # # Secrets
-      # ID_secrets: ${{ secrets.CLIENTID }}
-      # SECRET_secrets: ${{ secrets.CLIENTSECRET }}
-    secrets:
+      # Secrets
       CLIENTID_secrets: ${{ secrets.CLIENTID }}
       CLIENTSECRET_secrets: ${{ secrets.CLIENTSECRET }}
+    secrets: inherit
