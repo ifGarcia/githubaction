@@ -16,5 +16,5 @@ jobs:
       # ID_secrets: ${{ secrets.CLIENTID }}
       # SECRET_secrets: ${{ secrets.CLIENTSECRET }}
     secrets:
-      ID_secrets: ${{ secrets.CLIENTID }}
-      SECRET_secrets: ${{ secrets.CLIENTSECRET }}
+      CLIENTID_secrets: ${{ secrets.CLIENTID }}
+      CLIENTSECRET_secrets: ${{ secrets.CLIENTSECRET }}
