@@ -10,6 +10,8 @@ on:
         required: true
       CLIENTSECRET_secrets:
         required: true
+      VAR_SECRETA_TESTE:
+        required: true
 # env:
   # CLIENTID: ${{ secrets.app-inputCLIENTID }}
   # CLIENTID: ${{ inputs.app-input }}CLIENTID
