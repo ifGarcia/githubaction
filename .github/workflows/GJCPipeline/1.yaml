@@ -1,0 +1,89 @@
+name: CI
+
+env:
+  MAVEN_REPO_USER: ${{ secrets.MAVEN_REPO_USER }}
+  MAVEN_REPO_PASS: ${{ secrets.MAVEN_REPO_PASS }}
+  DOCKER_PRIVATE_REGISTRY: ${{ secrets.DOCKER_PRIVATE_REGISTRY }}
+  NAMESPACE: ${{ secrets.NAMESPACE }}
+  K8S_SERVER: ${{ secrets.K8S_SERVER }}
+  K8S_USER_TOKEN: ${{ secrets.K8S_USER_TOKEN }}
+  K8S_CA_BASE64: ${{ secrets.K8S_CA_BASE64 }}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  GITLAB_USER_LOGIN: ${{ secrets.GITLAB_USER_LOGIN }}
+  GITLAB_USER_EMAIL: ${{ secrets.GITLAB_USER_EMAIL }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:11
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+      - name: Install Dependencies
+        run: npm install
+      - name: Build
+        run: npm run build:${{ github.ref }}
+
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: node:11
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: npm install
+      - name: Run Tests
+        run: npm run lint:eslint
+
+  deploy:
+    runs-on: ubuntu-latest
+    container:
+      image: docker:latest
+    services:
+      - name: docker:dind
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Login to Docker Registry
+        run: docker login -u "$MAVEN_REPO_USER" -p "$MAVEN_REPO_PASS" $DOCKER_PRIVATE_REGISTRY
+      - name: Pull Docker Image
+        run: |
+          docker pull "$DOCKER_PRIVATE_REGISTRY/$NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_REF_SLUG" || true
+          docker pull "$DOCKER_PRIVATE_REGISTRY/$NAMESPACE/$CI_PROJECT_NAME:latest" || true
+      - name: Build Docker Image
+        run: docker build --pull -t "$DOCKER_PRIVATE_REGISTRY/$NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_REF_SLUG" .
+      - name: Push Docker Image
+        run: |
+          docker push "$DOCKER_PRIVATE_REGISTRY/$NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_REF_SLUG"
+          docker tag "$DOCKER_PRIVATE_REGISTRY/$NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_REF_SLUG" "$DOCKER_PRIVATE_REGISTRY/$NAMESPACE/$CI_PROJECT_NAME:latest"
+          docker push "$DOCKER_PRIVATE_REGISTRY/$NAMESPACE/$CI_PROJECT_NAME:latest"
+
+  rollout:
+    runs-on: ubuntu-latest
+    container:
+      image: smartive/kuby:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Rollout
+        run: |
+          kubectl config set-cluster k8s --server="${K8S_SERVER}"
+          kubectl config set clusters.k8s.certificate-authority-data ${K8S_CA_BASE64}
+          kubectl config set-credentials gitlab --token="${K8S_USER_TOKEN}"
+          kubectl config set-context default --cluster=k8s --user=gitlab
+          kubectl config use-context default
+          kubectl rollout pause deployment/${CI_PROJECT_NAME} -n ${NAMESPACE} || true
+          kubectl set image deployment/${CI_PROJECT_NAME} ${CI_PROJECT_NAME}=${DOCKER_PRIVATE_REGISTRY}/${NAMESPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG} -n ${NAMESPACE}
+          kubectl rollout resume deployment ${CI_PROJECT_NAME} -n ${NAMESPACE}
+          kubectl rollout restart deployment/${CI_PROJECT_NAME} -n ${NAMESPACE}
+          kubectl rollout status deployment ${CI_PROJECT_NAME} -n ${NAMESPACE}
