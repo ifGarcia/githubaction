@@ -21,7 +21,7 @@ jobs:
 
     - name: Print environment variables and secrets
       run: |
-        cd outro-repo
+        cd scripts
         python script.py
       env:
         MY_SECRET: ${{ secrets.MY_SECRET }}
