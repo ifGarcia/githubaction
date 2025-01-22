@@ -17,7 +17,11 @@ jobs:
 
       - name: Check input value
         run: |
-          INPUT_VALUE=${{ github.event.inputs.input_value || 1 }}
+          INPUT_VALUE=${{ github.event.inputs.input_value }}
+          if [[ -z "$INPUT_VALUE" ]]; then
+            INPUT_VALUE=1
+          fi
+
           if [[ "$INPUT_VALUE" == "1" ]]; then
             echo "Input is 1"
           elif [[ "$INPUT_VALUE" == "2" ]]; then
