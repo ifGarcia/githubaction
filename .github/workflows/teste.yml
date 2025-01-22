@@ -1,39 +1,33 @@
-name: Example Action
+name: Print Env Vars and Secrets
 
 on:
   workflow_dispatch:
-    inputs:
-      input_value:
-        description: 'Input value'
-        required: false
-        default: 1
 
 jobs:
-  example-job:
+  print-env-vars:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Set up job
-        run: echo "Setting up job..."
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Check input value
-        run: |
-          INPUT_VALUE=${{ github.event.inputs.input_value }}
-          if [[ -z "$INPUT_VALUE" ]]; then
-            INPUT_VALUE=1
-          fi
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
-          if [[ "$INPUT_VALUE" == "1" ]]; then
-            echo "Input is 1"
-          elif [[ "$INPUT_VALUE" == "2" ]]; then
-            echo "Input is 2"
-          elif [[ "$INPUT_VALUE" == "3" ]]; then
-            echo "Input is 3"
-          elif [[ -z "$INPUT_VALUE" ]]; then
-            echo "Input is empty"
-          else
-            echo "Invalid input: $INPUT_VALUE"
-            exit 1
-          fi
+    - name: Print environment variables and secrets
+      run: |
+        python -c "
+        import os
+        print('Environment Variables:')
+        for key, value in os.environ.items():
+        print(f'{key}: {value}')
+        "
+      env:
+        MY_SECRET: ${{ secrets.MY_SECRET }}
+
+
 # name: Teste
 
 # on:
