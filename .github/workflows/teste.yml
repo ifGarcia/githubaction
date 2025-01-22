@@ -22,7 +22,7 @@ jobs:
         import os
         print('Environment Variables:')
         for key, value in os.environ.items():
-        print(f'{key}: {value}')
+          print(f'{key}: {value}')
         "
       env:
         MY_SECRET: ${{ secrets.MY_SECRET }}
