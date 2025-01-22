@@ -6,7 +6,7 @@ on:
       input_value:
         description: 'Input value'
         required: false
-        default: '1'
+        default: 1
 
 jobs:
   example-job:
@@ -28,8 +28,8 @@ jobs:
             echo "Input is empty"
           else
             echo "Invalid input: $INPUT_VALUE"
-          exit 1
-          
+            exit 1
+          fi
 # name: Teste
 
 # on:
