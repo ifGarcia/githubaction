@@ -1,47 +1,78 @@
-name: Teste
+name: Example Action
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '**/teste.yml'
+    inputs:
+      input_value:
+        description: 'Input value'
+        required: false
+        default: 1
 
 jobs:
-  build:
+  example-job:
     runs-on: ubuntu-latest
-    env:
-      VAR_NAME: NOME_DA_VARIAVEL
-
     steps:
-      - run: |
-          VAR_NAME="${{ env.VAR_NAME }}"
-          VAR_VALUE="${{ vars[$VAR_NAME] }}"
-          echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
-      # echo ${{ env.VAR_NAME }}
-      # echo ${{ vars.NOME_DA_VARIAVEL }}
+      - name: Set up job
+        run: echo "Setting up job..."
 
-  # job_teste:
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     VARIAVEL-VAR: VALOR VARIAVEL-VAR
-  #     VARIAVEL-NAME: VARIAVEL-VAR
-  #   steps:
-  #     - name: Echo VAR_ACTION
-  #       run: |
-  #         VARIAVEL-NAME="${{ env.VARIAVEL-NAME }}"
-  #         VAR_VALUE="${{ env[VARIAVEL-NAME] }}"
-  #         echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
+      - name: Check input value
+        run: |
+          INPUT_VALUE=${{ github.event.inputs.input_value || 1 }}
+          if [[ "$INPUT_VALUE" == "1" ]]; then
+            echo "Input is 1"
+          elif [[ "$INPUT_VALUE" == "2" ]]; then
+            echo "Input is 2"
+          elif [[ "$INPUT_VALUE" == "3" ]]; then
+            echo "Input is 3"
+          elif [[ -z "$INPUT_VALUE" ]]; then
+            echo "Input is empty"
+          else
+            echo "Invalid input: $INPUT_VALUE"
+            exit 1
+# name: Teste
+
+# on:
+#   workflow_dispatch:
+#   push:
+#     paths:
+#       - '**/teste.yml'
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     env:
+#       VAR_NAME: NOME_DA_VARIAVEL
+
+#     steps:
+#       - run: |
+#           VAR_NAME="${{ env.VAR_NAME }}"
+#           VAR_VALUE="${{ vars[$VAR_NAME] }}"
+#           echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
+#       # echo ${{ env.VAR_NAME }}
+#       # echo ${{ vars.NOME_DA_VARIAVEL }}
+
+#   # job_teste:
+#   #   runs-on: ubuntu-latest
+#   #   env:
+#   #     VARIAVEL-VAR: VALOR VARIAVEL-VAR
+#   #     VARIAVEL-NAME: VARIAVEL-VAR
+#   #   steps:
+#   #     - name: Echo VAR_ACTION
+#   #       run: |
+#   #         VARIAVEL-NAME="${{ env.VARIAVEL-NAME }}"
+#   #         VAR_VALUE="${{ env[VARIAVEL-NAME] }}"
+#   #         echo "Valor da variável $VAR_NAME é: $VAR_VALUE"
           
-  #       # vala="VAR_"
-  #       # valB="ACTION"
-  #       # envName=$vala$valB
-  #       # echo $envName
-  #       # echo ${{ vars.VAR_ACTION }}
-  #       # envName="vars.${envName}"
-  #       # ${{ $envName }}
-  #       # envName="${{ ${envName} }}"
+#   #       # vala="VAR_"
+#   #       # valB="ACTION"
+#   #       # envName=$vala$valB
+#   #       # echo $envName
+#   #       # echo ${{ vars.VAR_ACTION }}
+#   #       # envName="vars.${envName}"
+#   #       # ${{ $envName }}
+#   #       # envName="${{ ${envName} }}"
           
-  #       # envName="${{ vars." + $envName + " }}"
-  #       # echo "${{ vars." + $envName + " }}"
-  #       # $envName = "${{ vars.$vala$valB }}"
-  #       # $envName
+#   #       # envName="${{ vars." + $envName + " }}"
+#   #       # echo "${{ vars." + $envName + " }}"
+#   #       # $envName = "${{ vars.$vala$valB }}"
+#   #       # $envName
