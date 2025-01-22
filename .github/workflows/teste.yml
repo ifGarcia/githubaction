@@ -8,8 +8,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout the other repository
       uses: actions/checkout@v2
+      with:
+        repository: 'ifGarcia/scripts'
+        path: 'scripts'
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -18,12 +21,8 @@ jobs:
 
     - name: Print environment variables and secrets
       run: |
-        python -c "
-        import os
-        print('Environment Variables:')
-        for key, value in os.environ.items():
-          print(f'{key}: {value}')
-        "
+        cd outro-repo
+        python script.py
       env:
         MY_SECRET: ${{ secrets.MY_SECRET }}
 
