@@ -28,7 +28,7 @@ jobs:
             echo "Input is empty"
           else
             echo "Invalid input: $INPUT_VALUE"
-            exit 1
+          exit 1
 # name: Teste
 
 # on:
