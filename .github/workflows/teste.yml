@@ -2,6 +2,8 @@ name: Print Env Vars and Secrets
 
 on:
   workflow_dispatch:
+    inputs:
+      my_var:
 
 jobs:
   print-env-vars:
