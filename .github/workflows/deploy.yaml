@@ -1,0 +1,41 @@
+name: Deploy to Environments
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # - name: Deploy to Development
+    #   # if: startsWith(github.ref, 'refs/tags/')
+    #   run: echo "Deploying to Development"
+    #   env:
+    #     ENVIRONMENT: development
+    #     RELEASE_VERSION: ${{ github.ref_name }}
+
+    # - name: Deploy to Staging
+    #   # if: startsWith(github.ref, 'refs/tags/')
+    #   run: echo "Deploying to Staging"
+    #   env:
+    #     ENVIRONMENT: staging
+    #     RELEASE_VERSION: ${{ github.ref_name }}
+
+    - name: Deploy to Production
+      # if: startsWith(github.ref, 'refs/tags/')
+      run: echo "Deploying to Production"
+      env:
+        ENVIRONMENT: production
+        RELEASE_VERSION: v1.0.0
+
+    - name: Create Deployment Status
+      uses: octokit/request-action@v2.x
+      with:
+        route: POST /repos/${{ github.repository }}/deployments
+        environment: ${{ env.ENVIRONMENT }}
+        description: ${{ env.ENVIRONMENT }} - ${{ env.RELEASE_VERSION }}
+        state: success
