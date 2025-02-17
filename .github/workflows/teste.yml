@@ -1,12 +1,10 @@
-name: Testando
+name: Example Workflow
 
 on:
   workflow_dispatch:
-    # inputs:
-    #   my_var:
 
 jobs:
-  print-env-vars:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,19 +12,8 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Print run number
-      run: echo "Run number: ${{ github.run_number }}"
+      run: ${{ github.run_number }}
 
-
-
-
-
-
-
-
-
-
-
-    
     # - name: Checkout the other repository
     #   uses: actions/checkout@v2
     #   with:
