@@ -1,33 +1,50 @@
-name: Print Env Vars and Secrets
+name: Testando
 
 on:
   workflow_dispatch:
-    inputs:
-      my_var:
+    # inputs:
+    #   my_var:
 
 jobs:
   print-env-vars:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout the other repository
+    - name: Checkout repository
       uses: actions/checkout@v2
-      with:
-        repository: 'ifGarcia/scripts'
-        path: 'scripts'
-        token: ${{ secrets.GITHUB_TOKEN }}
- 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
 
-    - name: Print environment variables and secrets
-      run: |
-        cd scripts
-        python script.py
-      env:
-        MY_VAR: "valor MY_VAR"
+    - name: Print run number
+      run: echo "Run number: ${{ github.run_number }}"
+
+
+
+
+
+
+
+
+
+
+
+    
+    # - name: Checkout the other repository
+    #   uses: actions/checkout@v2
+    #   with:
+    #     repository: 'ifGarcia/scripts'
+    #     path: 'scripts'
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+ 
+    # - name: Set up Python
+    #   uses: actions/setup-python@v2
+    #   with:
+    #     python-version: '3.x'
+
+    # - name: Print environment variables and secrets
+    #   run: |
+    #     cd scripts
+    #     python script.py
+    #   env:
+    #     MY_VAR: "valor MY_VAR"
 
 
 # name: Teste
