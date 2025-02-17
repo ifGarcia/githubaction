@@ -22,7 +22,7 @@ jobs:
         run: npm install
 
       - name: Generate badge
-        run: node generate_badge.js
+        run: node ./.github/script/generate_badge.js
 
       - name: Commit and push badge
         run: |
