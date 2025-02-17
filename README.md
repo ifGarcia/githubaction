@@ -2,3 +2,4 @@
 
 
 !Build Status
+./badge.svg
