@@ -16,7 +16,8 @@ jobs:
         echo "Run number: ${{ github.run_number }}"
         echo "Workflow run ID: ${{ github.run_id }}"
         echo "Workflow URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        
+        ${{ github.event_name }}
+  
     # - name: Checkout the other repository
     #   uses: actions/checkout@v2
     #   with:
