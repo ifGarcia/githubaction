@@ -26,13 +26,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Script
         uses: actions/checkout@v4.2.2
         with:
           sparse-checkout:
             .github/script/generate_badge.js
           fetch-depth: '0'
-          # token: 
+          persist-credentials: false
+          # token:
       
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -52,6 +53,14 @@ jobs:
         run: |
           ls -l
 
+      - name: Checkout Repo Badges
+        uses: actions/checkout@v4.2.2
+        with:
+          repository: ifGarcia/badge
+          fetch-depth: '0'
+          persist-credentials: true
+          # token:
+
       # - name: Commit and push badge
       #   run: |
       #     git config --global user.name 'github-actions[bot]'
@@ -68,9 +77,8 @@ jobs:
           echo "SVG directory: $SVG_DIR"
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git clone --depth 1 https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git target-repo
-          cp -r $SVG_DIR/* target-repo/
-          cd target-repo
+          cp -r $SVG_DIR/* badge/
+          cd badge
           git add .
           git commit -m 'Update badges'
           git push
