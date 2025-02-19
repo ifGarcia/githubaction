@@ -81,6 +81,8 @@ jobs:
           mkdir -p badge/${SVG_DIR}
           cp -r -f $SVG_DIR/* badge/${SVG_DIR}
           cd badge
+          git config user.email "githubaction@github.com"
+          git config user.name "Github Action"
           git add .
           git commit -m 'Update badges'
           git push
