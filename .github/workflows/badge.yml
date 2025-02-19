@@ -64,7 +64,7 @@ jobs:
         with:
           repository: ifGarcia/badge
           path: badge
-          fetch-depth: 0
+          # fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List generated files
@@ -81,4 +81,4 @@ jobs:
           git config user.name "Github Action"
           git add .
           git commit -m 'Update badges'
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git
+          git push
