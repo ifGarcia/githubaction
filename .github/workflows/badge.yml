@@ -56,7 +56,7 @@ jobs:
           repository: ifGarcia/badge
           fetch-depth: '0'
           persist-credentials: true
-          # token:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List generated files
         run: |
