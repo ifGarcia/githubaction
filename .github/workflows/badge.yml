@@ -78,8 +78,6 @@ jobs:
         
           SVG_DIR=$(find . -path ./badge -prune -o -type f -name "*.svg" -exec dirname {} \; | uniq)
           echo "SVG directory: $SVG_DIR"
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@.github.com'
           mkdir -p badge/${SVG_DIR}
           cp -r -f $SVG_DIR/* badge/${SVG_DIR}
           cd badge
