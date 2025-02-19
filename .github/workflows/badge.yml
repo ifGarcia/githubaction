@@ -52,6 +52,7 @@ jobs:
       - name: Checkout Repo Badges
         uses: actions/checkout@v4.2.2
         with:
+          path: 'badge'
           repository: ifGarcia/badge
           fetch-depth: '0'
           persist-credentials: true
@@ -77,7 +78,7 @@ jobs:
           echo "SVG directory: $SVG_DIR"
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          cp -r $SVG_DIR/* ./badge/
+          cp -r $SVG_DIR/* badge/
           cd badge
           git add .
           git commit -m 'Update badges'
