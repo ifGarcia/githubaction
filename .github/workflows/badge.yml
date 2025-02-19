@@ -19,7 +19,7 @@ on:
         default: 'v1.0.34'
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  TOKEN: ${{ secrets.TOKEN }}
 
 jobs:
   build:
@@ -45,7 +45,7 @@ jobs:
         with:
           repository: ${{ github.repository }}
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.TOKEN }}
       
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -64,7 +64,7 @@ jobs:
           repository: ifGarcia/badge
           path: badge
           # fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.TOKEN }}
 
       - name: List generated files
         run: ls -l
