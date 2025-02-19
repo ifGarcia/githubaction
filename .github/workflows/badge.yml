@@ -59,10 +59,12 @@ jobs:
 
       - name: Commit and push badges to target repo
         run: |
+          SVG_DIR=$(find . -type f -name "*.svg" -exec dirname {} \; | uniq)
+          echo "SVG directory: $SVG_DIR"
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git clone --depth 1 https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git target-repo
-          cp -r ${GITHUB_REPOSITORY.split('/')[1].toLowerCase()} target-repo/
+          cp -r $SVG_DIR/* target-repo/
           cd target-repo
           git add .
           git commit -m 'Update badges'
