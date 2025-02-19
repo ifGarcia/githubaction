@@ -32,7 +32,7 @@ jobs:
         env:
           environment: ${{ inputs.environment }}
           version:  ${{ inputs.version }}
-          repo: ${{ GITHUB_REPOSITORY }}
+          repo: ${{ env.GITHUB_REPOSITORY }}
 
       - name: Commit and push badge
         run: |
