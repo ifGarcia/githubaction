@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const envName = process.env.environment;
 const version = process.env.version;
-const repo = process.env.repo;
+const repo = process.env.GITHUB_REPOSITORY.split('/')[1];
 
 const badge = `
 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="20">
