@@ -20,6 +20,9 @@ on:
 
 permissions:
   contents: write
+  
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
@@ -71,14 +74,12 @@ jobs:
       #     git push
 
       - name: Commit and push badges to target repo
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
         
           SVG_DIR=$(find . -path ./badge -prune -o -type f -name "*.svg" -exec dirname {} \; | uniq)
           echo "SVG directory: $SVG_DIR"
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@.github.com'
           mkdir -p badge/${SVG_DIR}
           cp -r -f $SVG_DIR/* badge/${SVG_DIR}
           cd badge
