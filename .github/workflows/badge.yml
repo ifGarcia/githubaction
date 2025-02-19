@@ -10,7 +10,14 @@ on:
           type: string
           default: 'v1.0.34'
   workflow_call:
-
+      inputs:
+        environment:
+          type: string
+          default: 'TU'
+        version:
+          type: string
+          default: 'v1.0.34'
+          
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,10 +40,21 @@ jobs:
           environment: ${{ inputs.environment }}
           version:  ${{ inputs.version }}
 
-      - name: Commit and push badge
+      # - name: Commit and push badge
+      #   run: |
+      #     git config --global user.name 'github-actions[bot]'
+      #     git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      #     git add *.svg
+      #     git commit -m 'Update badge'
+      #     git push
+
+      - name: Commit and push badges to target repo
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add *.svg package-lock.json
-          git commit -m 'Update badge'
+          git clone --depth 1 https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git target-repo
+          cp *.svg target-repo/
+          cd target-repo
+          git add .
+          git commit -m 'Update badges'
           git push
