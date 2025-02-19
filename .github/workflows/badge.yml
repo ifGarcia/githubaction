@@ -2,21 +2,21 @@ name: Generate Badge
 
 on:
   workflow_dispatch:
-      inputs:
-        environment:
-          type: string
-          default: 'TU'
-        version:
-          type: string
-          default: 'v1.0.34'
+    inputs:
+      environment:
+        type: string
+        default: 'TU'
+      version:
+        type: string
+        default: 'v1.0.34'
   workflow_call:
-      inputs:
-        environment:
-          type: string
-          default: 'TU'
-        version:
-          type: string
-          default: 'v1.0.34'
+    inputs:
+      environment:
+        type: string
+        default: 'TU'
+      version:
+        type: string
+        default: 'v1.0.34'
 
 permissions:
   contents: write
@@ -30,20 +30,17 @@ jobs:
 
     steps:
       - name: Checkout Script
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
-          sparse-checkout:
-            .github/script/generate_badge.js
-          fetch-depth: '0'
-          # token:
+          repository: ${{ github.repository }}
+          path: script
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-
-      # - name: Install dependencies
-      #   run: npm install
 
       - name: Generate badge
         run: node .github/script/generate_badge.js
@@ -52,28 +49,18 @@ jobs:
           version:  ${{ inputs.version }}
 
       - name: Checkout Repo Badges
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
-          path: 'badge'
           repository: ifGarcia/badge
-          fetch-depth: '0'
-          # token: ${{ secrets.GITHUB_TOKEN }}
+          path: badge
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List generated files
-        run: |
-          ls -l
-
-      # - name: Commit and push badge
-      #   run: |
-      #     git config --global user.name 'github-actions[bot]'
-      #     git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-      #     git add *.svg
-      #     git commit -m 'Update badge'
-      #     git push
+        run: ls -l
 
       - name: Commit and push badges to target repo
         run: |
-        
           SVG_DIR=$(find . -path ./badge -prune -o -type f -name "*.svg" -exec dirname {} \; | uniq)
           echo "SVG directory: $SVG_DIR"
           mkdir -p badge/${SVG_DIR}
@@ -84,4 +71,3 @@ jobs:
           git add .
           git commit -m 'Update badges'
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git
-
