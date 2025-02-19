@@ -48,8 +48,6 @@ jobs:
       - name: List generated files
         run: |
           ls -l
-          ls la
-
       # - name: Commit and push badge
       #   run: |
       #     git config --global user.name 'github-actions[bot]'
