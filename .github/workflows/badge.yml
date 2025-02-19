@@ -24,8 +24,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v4.2.2
+        with:
+          sparse-checkout:
+            .github/script/generate_badge.js
+          fetch-depth: 0
+          # token: 
+      
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -40,6 +45,9 @@ jobs:
           environment: ${{ inputs.environment }}
           version:  ${{ inputs.version }}
 
+      - name: List generated files
+        run: ls -l
+
       # - name: Commit and push badge
       #   run: |
       #     git config --global user.name 'github-actions[bot]'
@@ -52,7 +60,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git clone --depth 1 https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git target-repo
+          git clone --depth 0 https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git target-repo
           cp *.svg target-repo/
           cd target-repo
           git add .
