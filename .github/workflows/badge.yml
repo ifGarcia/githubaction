@@ -60,7 +60,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git clone --depth 0 https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git target-repo
+          git clone --depth 1 https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git target-repo
           cp *.svg target-repo/
           cd target-repo
           git add .
