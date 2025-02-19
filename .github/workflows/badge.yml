@@ -28,7 +28,7 @@ jobs:
         with:
           sparse-checkout:
             .github/script/generate_badge.js
-          fetch-depth: 0
+          fetch-depth: '0'
           # token: 
       
       - name: Set up Node.js
