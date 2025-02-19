@@ -75,12 +75,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
         
-          SVG_DIR=$(find . -type f -name "*.svg" -exec dirname {} \; | uniq)
+          SVG_DIR=$(find . -path ./badge -prune -o -type f -name "*.svg" -exec dirname {} \; | uniq)
           echo "SVG directory: $SVG_DIR"
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           mkdir -p badge/${SVG_DIR}
-          cp -r $SVG_DIR/* badge/$SVG_DIR
+          cp -r -f $SVG_DIR/* badge/${SVG_DIR}
           cd badge
           git add .
           git commit -m 'Update badges'
