@@ -6,11 +6,11 @@ const version = process.env.version;
 const repo = process.env.GITHUB_REPOSITORY.split('/')[1];
 
 const badge = `
-<svg xmlns="http://www.w3.org/2000/svg" width="100" height="20">
-  <rect width="100" height="20" fill="#555"/>
-  <rect x="37" width="63" height="20" fill="#4c1"/>
-  <text x="19.5" y="14" fill="#fff" font-family="Verdana" font-size="11">${envName}</text>
-  <text x="50" y="14" fill="#fff" font-family="Verdana" font-size="11">${version}</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="40">
+  <rect rx="20" ry="20" width="300" height="40" fill="#555"/>
+  <rect rx="20" ry="20" x="150" width="150" height="40" fill="#808080"/>
+  <text x="75" y="25" fill="#fff" font-family="Verdana" font-size="15" text-anchor="middle">${envName}</text>
+  <text x="225" y="25" fill="#fff" font-family="Verdana" font-size="15" text-anchor="middle">${version}</text>
 </svg>`;
 
 const fileName = `${repo.toLowerCase().replace(/\s+/g, '_')}/${envName.toLowerCase().replace(/\s+/g, '_')}.svg`;
