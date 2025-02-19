@@ -19,9 +19,19 @@ on:
         default: 'v1.0.34'
 
 permissions:
-  contents: write # We generate static HTML, JS, CSS so we need write access to the repo
-  pages: write
+  actions: write
+  checks: write
+  contents: write
+  deployments: write
+  discussions: write
   id-token: write
+  issues: write
+  packages: write
+  pages: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
