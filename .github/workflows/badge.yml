@@ -48,6 +48,7 @@ jobs:
       - name: List generated files
         run: |
           ls -l
+
       # - name: Commit and push badge
       #   run: |
       #     git config --global user.name 'github-actions[bot]'
@@ -61,7 +62,7 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git clone --depth 1 https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/ifGarcia/badge.git target-repo
-          cp *.svg target-repo/
+          cp -r ${GITHUB_REPOSITORY.split('/')[1].toLowerCase()} target-repo/
           cd target-repo
           git add .
           git commit -m 'Update badges'
