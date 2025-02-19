@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 const envName = process.env.environment;
 const version = process.env.version;
