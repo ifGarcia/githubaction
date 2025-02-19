@@ -36,11 +36,11 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Install dependencies
-        run: npm install
+      # - name: Install dependencies
+      #   run: npm install
 
       - name: Generate badge
-        run: node ./.github/script/generate_badge.js
+        run: node generate_badge.js
         env:
           environment: ${{ inputs.environment }}
           version:  ${{ inputs.version }}
