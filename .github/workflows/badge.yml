@@ -61,6 +61,8 @@ jobs:
       #     git push
 
       - name: Commit and push badges to target repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           SVG_DIR=$(find . -type f -name "*.svg" -exec dirname {} \; | uniq)
           echo "SVG directory: $SVG_DIR"
