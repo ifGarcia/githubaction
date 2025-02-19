@@ -12,6 +12,5 @@ const badge = `
   <text x="50" y="14" fill="#fff" font-family="Verdana" font-size="11">${version}</text>
 </svg>`;
 
-
 const fileName = `${repo.toLowerCase().replace(/\s+/g, '_')}/${envName.toLowerCase().replace(/\s+/g, '_')}.svg`;
 fs.writeFileSync(fileName, badge);
