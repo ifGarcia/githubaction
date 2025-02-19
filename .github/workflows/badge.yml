@@ -46,7 +46,9 @@ jobs:
           version:  ${{ inputs.version }}
 
       - name: List generated files
-        run: ls -l
+        run: |
+          ls -l
+          ls la
 
       # - name: Commit and push badge
       #   run: |
