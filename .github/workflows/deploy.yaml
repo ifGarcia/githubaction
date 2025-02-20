@@ -103,8 +103,6 @@ jobs:
                 $deployment | jq -r '.[0] | select(.state == "success") | {id: .id, sha: .sha, description: .description}')
               if [ -n "$status" ]; then
                 echo "$status" | jq -r '"ID: \(.id), SHA: \(.sha), Descrição: \(.description)"'
-              else
-                echo "Nenhum deployment bem-sucedido encontrado."
               fi
             done
             echo ""
