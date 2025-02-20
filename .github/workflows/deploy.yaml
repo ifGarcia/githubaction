@@ -71,20 +71,21 @@ jobs:
   #       env:
   #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   #         DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
-
-  list-deployments:
+  
+  list-active-deployments:
     runs-on: ubuntu-latest
     steps:
-      - name: List deployments
+      - name: List active deployments
         run: |
           echo "Ambientes e seus deployments ativos:"
           for env in production staging development; do
             echo "Ambiente: $env"
-            deployments=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            active_deployment=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/${{ github.repository }}/deployments?environment=$env)
-            if [ "$deployments" != "[]" ]; then
-              echo "$deployments" | jq -r '.[] | "ID: \(.id), SHA: \(.sha), Status: \(.statuses_url)"'
+              https://api.github.com/repos/${{ github.repository }}/deployments?environment=$env \
+              | jq -r '.[] | select(.statuses_url | contains("active")) | {id: .id, sha: .sha, description: .description}')
+            if [ -n "$active_deployment" ]; then
+              echo "$active_deployment" | jq -r '"ID: \(.id), SHA: \(.sha), Descrição: \(.description)"'
             else
               echo "Nenhum deployment ativo encontrado."
             fi
