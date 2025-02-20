@@ -3,112 +3,92 @@ name: Deploy
 on: [push]
 
 jobs:
-  deploy:
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   # environment: production
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Create GitHub deployment
+  #       id: create_deployment
+  #       run: |
+  #         curl -X POST \
+  #           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+  #           -H "Accept: application/vnd.github.v3+json" \
+  #           https://api.github.com/repos/${{ github.repository }}/deployments \
+  #           -d '{
+  #             "ref": "${{ github.sha }}",
+  #             "environment": "production",
+  #             "required_contexts": []
+  #           }'
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  #     - name: Get deployment ID
+  #       id: get_deployment_id
+  #       run: |
+  #         DEPLOYMENT_ID=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+  #           -H "Accept: application/vnd.github.v3+json" \
+  #           https://api.github.com/repos/${{ github.repository }}/deployments \
+  #           | jq '.[0].id')
+  #         echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_ENV
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  #     - name: Deploy application
+  #       run: |
+  #         # Seu código de deployment aqui
+
+  #     - name: Update deployment status (success)
+  #       if: success()
+  #       run: |
+  #         curl -X POST \
+  #           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+  #           -H "Accept: application/vnd.github.v3+json" \
+  #           https://api.github.com/repos/${{ github.repository }}/deployments/${{ env.DEPLOYMENT_ID }}/statuses \
+  #           -d '{
+  #             "state": "success",
+  #             "description": "Deployment concluído com sucesso",
+  #             "environment": "production"
+  #           }'
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
+
+  #     - name: Update deployment status (failure)
+  #       if: failure()
+  #       run: |
+  #         curl -X POST \
+  #           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+  #           -H "Accept: application/vnd.github.v3+json" \
+  #           https://api.github.com/repos/${{ github.repository }}/deployments/${{ env.DEPLOYMENT_ID }}/statuses \
+  #           -d '{
+  #             "state": "failure",
+  #             "description": "Falha no deployment",
+  #             "environment": "production"
+  #           }'
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
+
+  list-deployments:
     runs-on: ubuntu-latest
-    # environment: production
-
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Create GitHub deployment
-        id: create_deployment
+      - name: List deployments
         run: |
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/deployments \
-            -d '{
-              "ref": "${{ github.sha }}",
-              "environment": "production",
-              "required_contexts": []
-            }'
+          echo "Ambientes e seus deployments ativos:"
+          for env in production staging development; do
+            echo "Ambiente: $env"
+            deployments=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository }}/deployments?environment=$env)
+            if [ "$deployments" != "[]" ]; then
+              echo "$deployments" | jq -r '.[] | "ID: \(.id), SHA: \(.sha), Status: \(.statuses_url)"'
+            else
+              echo "Nenhum deployment ativo encontrado."
+            fi
+            echo ""
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get deployment ID
-        id: get_deployment_id
-        run: |
-          DEPLOYMENT_ID=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/deployments \
-            | jq '.[0].id')
-          echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Deploy application
-        run: |
-          # Seu código de deployment aqui
-
-      - name: Update deployment status (success)
-        if: success()
-        run: |
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/deployments/${{ env.DEPLOYMENT_ID }}/statuses \
-            -d '{
-              "state": "success",
-              "description": "Deployment concluído com sucesso",
-              "environment": "production"
-            }'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
-
-      - name: Update deployment status (failure)
-        if: failure()
-        run: |
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/deployments/${{ env.DEPLOYMENT_ID }}/statuses \
-            -d '{
-              "state": "failure",
-              "description": "Falha no deployment",
-              "environment": "production"
-            }'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
-
-# name: Deploy to Environments
-
-# on:
-#   workflow_dispatch:
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-#     environment: production
-
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v2
-
-#     # - name: Deploy to Development
-#     #   # if: startsWith(github.ref, 'refs/tags/')
-#     #   run: echo "Deploying to Development"
-#     #   env:
-#     #     ENVIRONMENT: development
-#     #     RELEASE_VERSION: ${{ github.ref_name }}
-
-#     # - name: Deploy to Staging
-#     #   # if: startsWith(github.ref, 'refs/tags/')
-#     #   run: echo "Deploying to Staging"
-#     #   env:
-#     #     ENVIRONMENT: staging
-#     #     RELEASE_VERSION: ${{ github.ref_name }}
-
-#     - name: Deploy to Production
-#       # if: startsWith(github.ref, 'refs/tags/')
-#       run: echo "Deploying to Production"
-#       env:
-#         RELEASE_VERSION: v1.0.0
-
-#     - name: Create Deployment Status
-#       uses: octokit/request-action@v2.x
-#       with:
-#         route: POST /repos/${{ github.repository }}/deployments
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
