@@ -72,22 +72,22 @@ jobs:
   #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   #         DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
   
-  list-active-deployments:
+  list-successful-deployments:
     runs-on: ubuntu-latest
     steps:
-      - name: List active deployments
+      - name: List successful deployments
         run: |
-          echo "Ambientes e seus deployments ativos:"
+          echo "Ambientes e seus deployments bem-sucedidos:"
           for env in production staging development; do
             echo "Ambiente: $env"
-            active_deployment=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            successful_deployment=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${{ github.repository }}/deployments?environment=$env \
-              | jq -r '.[] | select(.statuses_url | contains("active")) | {id: .id, sha: .sha, description: .description}')
-            if [ -n "$active_deployment" ]; then
-              echo "$active_deployment" | jq -r '"ID: \(.id), SHA: \(.sha), Descrição: \(.description)"'
+              | jq -r '.[] | select(.statuses_url | contains("success")) | {id: .id, sha: .sha, description: .description}')
+            if [ -n "$successful_deployment" ]; then
+              echo "$successful_deployment" | jq -r '"ID: \(.id), SHA: \(.sha), Descrição: \(.description)"'
             else
-              echo "Nenhum deployment ativo encontrado."
+              echo "Nenhum deployment bem-sucedido encontrado."
             fi
             echo ""
           done
