@@ -72,11 +72,6 @@ jobs:
   #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   #         DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
   
-name: List Successful Deployments
-
-on: [workflow_dispatch]
-
-jobs:
   list-successful-deployments:
     runs-on: ubuntu-latest
     steps:
