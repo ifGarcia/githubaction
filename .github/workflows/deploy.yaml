@@ -72,6 +72,11 @@ jobs:
   #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   #         DEPLOYMENT_ID: ${{ env.DEPLOYMENT_ID }}
   
+name: List Successful Deployments
+
+on: [workflow_dispatch]
+
+jobs:
   list-successful-deployments:
     runs-on: ubuntu-latest
     steps:
@@ -94,15 +99,19 @@ jobs:
           echo "Ambientes e seus deployments bem-sucedidos:"
           for env in production staging development; do
             echo "Ambiente: $env"
-            successful_deployment=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            all_deployments=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/${{ github.repository }}/deployments?environment=$env \
-              | jq -r '.[] | select(.statuses_url | contains("success")) | {id: .id, sha: .sha, description: .description}')
-            if [ -n "$successful_deployment" ]; then
-              echo "$successful_deployment" | jq -r '"ID: \(.id), SHA: \(.sha), Descrição: \(.description)"'
-            else
-              echo "Nenhum deployment bem-sucedido encontrado."
-            fi
+              https://api.github.com/repos/${{ github.repository }}/deployments?environment=$env)
+            for deployment in $(echo "$all_deployments" | jq -r '.[].statuses_url'); do
+              status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                $deployment | jq -r '.[0] | select(.state == "success") | {id: .id, sha: .sha, description: .description}')
+              if [ -n "$status" ]; then
+                echo "$status" | jq -r '"ID: \(.id), SHA: \(.sha), Descrição: \(.description)"'
+              else
+                echo "Nenhum deployment bem-sucedido encontrado."
+              fi
+            done
             echo ""
           done
         env:
