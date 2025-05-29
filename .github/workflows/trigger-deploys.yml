@@ -1,0 +1,46 @@
+name: Trigger Deploys
+
+on:
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sistema: [sistema-a, sistema-b, sistema-c]
+
+    steps:
+      - name: Instalar GitHub CLI
+        uses: cli/cli-action@v2
+
+      - name: Disparar deploy e capturar run_id
+        id: trigger
+        run: |
+          echo "Disparando deploy para ${{ matrix.sistema }}"
+
+          gh workflow run deploy.yml \
+            --repo ${{ github.repository }} \
+            --ref main \
+            --field sistema=${{ matrix.sistema }}
+
+          echo "Aguardando 10s para garantir que o deploy apareça na lista..."
+          sleep 10
+
+          run_id=$(gh run list \
+            --workflow=deploy.yml \
+            --json databaseId,createdAt,inputs \
+            --jq ".[] | select(.inputs.sistema==\"${{ matrix.sistema }}\") | .databaseId" \
+            | head -n 1)
+
+          echo "run_id=$run_id"
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Aguardar finalização do deploy
+        run: |
+          echo "Aguardando deploy com run_id ${{ steps.trigger.outputs.run_id }}"
+          gh run watch ${{ steps.trigger.outputs.run_id }} --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
