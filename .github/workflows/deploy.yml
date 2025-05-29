@@ -1,0 +1,19 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      sistema:
+        description: 'Nome do sistema'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Iniciar deploy
+        run: |
+          echo "Iniciando deploy para ${{ github.event.inputs.sistema }}"
+          sleep $((RANDOM % 10 + 5))  # Simula tempo de deploy
+          echo "Deploy finalizado com sucesso para ${{ github.event.inputs.sistema }}"
