@@ -11,8 +11,10 @@ jobs:
         sistema: [sistema-a, sistema-b, sistema-c]
 
     steps:
-      - name: Instalar GitHub CLI
-        uses: cli/cli-action@v2
+      - name: Setup GitHub CLI
+        uses: actions/setup-gh@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Disparar deploy e capturar run_id
         id: trigger
