@@ -15,5 +15,5 @@ jobs:
       - name: Iniciar deploy
         run: |
           echo "Iniciando deploy para ${{ github.event.inputs.sistema }}"
-          sleep $((RANDOM % 10 + 5))  # Simula tempo de deploy
+          sleep 120
           echo "Deploy finalizado com sucesso para ${{ github.event.inputs.sistema }}"
