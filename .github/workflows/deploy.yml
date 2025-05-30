@@ -17,5 +17,5 @@ jobs:
       - name: Simular deploy
         run: |
           echo "Iniciando deploy para ${{ github.event.client_payload.sistema }}"
-          sleep $((RANDOM % 10 + 5))
+          sleep 60
           echo "Deploy finalizado para ${{ github.event.client_payload.sistema }}"
