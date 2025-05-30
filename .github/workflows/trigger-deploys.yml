@@ -25,10 +25,15 @@ jobs:
             -d '{"event_type":"start-deploy", "client_payload": {"sistema": "${{ matrix.sistema }}"}}'
 
           echo "Aguardando 10s para o deploy aparecer..."
-          sleep 10
+          sleep 15
 
           echo "Listando execuções recentes do workflow de deploy:"
-          gh run list --workflow=deploy.yml --limit 5 --json databaseId,createdAt,status,conclusion,headBranch,url \
+          gh run list \
+            --repo ${{ github.repository }} \
+            --workflow=deploy.yml \
+            --limit 5 \
+            --json databaseId,createdAt,status,conclusion,headBranch,url \
             --jq '.[] | {id: .databaseId, criado: .createdAt, status: .status, resultado: .conclusion, url: .url}'
+
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
