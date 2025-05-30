@@ -6,9 +6,15 @@ on:
 
 jobs:
   deploy:
+    name: Deploy para ${{ github.event.client_payload.sistema }}
     runs-on: ubuntu-latest
     steps:
-      - name: Iniciar deploy
+      - name: Mostrar payload recebido
+        run: |
+          echo "Evento: ${{ github.event.action }}"
+          echo "Sistema: ${{ github.event.client_payload.sistema }}"
+
+      - name: Simular deploy
         run: |
           echo "Iniciando deploy para ${{ github.event.client_payload.sistema }}"
           sleep $((RANDOM % 10 + 5))
