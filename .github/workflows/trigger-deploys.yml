@@ -11,6 +11,9 @@ jobs:
         sistema: [sistema-a, sistema-b, sistema-c]
 
     steps:
+      - name: Verificar GitHub CLI
+        run: gh --version
+
       - name: Disparar deploy e capturar run_id
         id: trigger
         run: |
