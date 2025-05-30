@@ -14,9 +14,10 @@ jobs:
       - name: Disparar deploy via repository_dispatch
         id: trigger
         run: |
-          echo "Disparando deploy para ${{ matrix.sistema }}"
-
           start_time=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "start_time=$start_time" >> $GITHUB_OUTPUT
+
+          echo "Disparando deploy para ${{ matrix.sistema }}..."
 
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
@@ -26,13 +27,31 @@ jobs:
 
           echo "Aguardando 10s para o deploy aparecer..."
           sleep 10
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          echo "Listando execuções recentes do workflow de deploy:"
-          gh run list \
+      - name: Encontrar run_id do deploy correspondente
+        id: encontrar
+        run: |
+          echo "Buscando run_id do deploy para ${{ matrix.sistema }} iniciado após ${{ steps.trigger.outputs.start_time }}"
+
+          run_id=$(gh run list \
             --repo ${{ github.repository }} \
             --workflow=deploy.yml \
-            --limit 5 \
-            --json databaseId,createdAt,status,conclusion,workflowName,url \
-            --jq '.[] | {id: .databaseId, criado: .createdAt, status: .status, resultado: .conclusion, url: .url}'
+            --limit 10 \
+            --json databaseId,createdAt,name \
+            --jq '.[] | select(.createdAt > "${{ steps.trigger.outputs.start_time }}" and .name == "Deploy para ${{ matrix.sistema }}") | .databaseId' \
+            | head -n 1)
+
+          echo "run_id=$run_id"
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Aguardar finalização do deploy
+        if: steps.encontrar.outputs.run_id != ''
+        run: |
+          echo "Aguardando deploy com run_id ${{ steps.encontrar.outputs.run_id }}"
+          gh run watch ${{ steps.encontrar.outputs.run_id }} --repo ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
