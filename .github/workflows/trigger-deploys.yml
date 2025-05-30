@@ -26,7 +26,7 @@ jobs:
             -d '{"event_type":"start-deploy", "client_payload": {"sistema": "${{ matrix.sistema }}"}}'
 
           echo "Aguardando 10s para o deploy aparecer..."
-          sleep 10
+          sleep 20
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
