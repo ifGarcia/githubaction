@@ -22,8 +22,8 @@ jobs:
             --field sistema=${{ matrix.sistema }}
       
           echo "Aguardando 10s para garantir que o deploy apareça na lista..."
-          sleep 20
-      
+          sleep 30
+
           run_id=$(gh run list \
             --workflow=deploy.yml \
             --json databaseId,createdAt,inputs \
