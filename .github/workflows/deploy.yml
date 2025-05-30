@@ -1,12 +1,8 @@
 name: Deploy
 
 on:
-  workflow_dispatch:
-    inputs:
-      sistema:
-        description: 'Nome do sistema'
-        required: true
-        type: string
+  repository_dispatch:
+    types: [start-deploy]
 
 jobs:
   deploy:
@@ -14,6 +10,6 @@ jobs:
     steps:
       - name: Iniciar deploy
         run: |
-          echo "Iniciando deploy para ${{ github.event.inputs.sistema }}"
-          sleep 120
-          echo "Deploy finalizado com sucesso para ${{ github.event.inputs.sistema }}"
+          echo "Iniciando deploy para ${{ github.event.client_payload.sistema }}"
+          sleep $((RANDOM % 10 + 5))
+          echo "Deploy finalizado para ${{ github.event.client_payload.sistema }}"
