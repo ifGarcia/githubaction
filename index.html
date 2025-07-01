@@ -46,7 +46,7 @@
     <label>Token do GitHub:</label>
     <input type="password" id="token" placeholder="GitHub Token" />
     <label>Repositório (owner/repo):</label>
-    <input type="text" id="repo" value="ifGarcia/githubaction" />
+    <input type="text" id="repo" value="usuario/repositorio" />
     <label>Branch:</label>
     <input type="text" id="branch" value="develop" />
     <label>Caminho do arquivo:</label>
@@ -70,11 +70,36 @@
     let accessData = {};
     let shaAtual = "";
 
+    document.addEventListener("DOMContentLoaded", async () => {
+      const savedToken = localStorage.getItem("github_token");
+      if (savedToken) {
+        document.getElementById("token").value = savedToken;
+
+        const res = await fetch("https://api.github.com/user", {
+          headers: {
+            Authorization: `Bearer ${savedToken}`,
+            Accept: "application/vnd.github.v3+json"
+          }
+        });
+
+        if (res.ok) {
+          const user = await res.json();
+          console.log("✅ Token válido. Usuário:", user.login);
+        } else {
+          console.warn("❌ Token inválido. Removendo do localStorage.");
+          localStorage.removeItem("github_token");
+          alert("Token inválido. Por favor, insira um novo.");
+        }
+      }
+    });
+
     async function carregar() {
       const token = document.getElementById("token").value;
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
       const filepath = document.getElementById("filepath").value;
+
+      localStorage.setItem("github_token", token);
 
       const headers = {
         Authorization: `Bearer ${token}`,
