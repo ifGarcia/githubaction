@@ -3,22 +3,111 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gerenciador de Acessos</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-    .container { background: white; padding: 20px; border-radius: 8px; max-width: 1000px; margin: auto; }
-    input, button, select { display: block; margin: 10px 0; padding: 8px; width: 100%; }
-    .tab-buttons { display: flex; gap: 10px; margin-top: 20px; }
-    .tab-buttons button { padding: 10px; cursor: pointer; background: #ddd; border: none; border-radius: 5px; }
-    .tab-content { margin-top: 20px; }
-    .bloco { background: #f0f0f0; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-    .bloco h3 { margin: 0 0 5px 0; }
-    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
-    .tag { background: #ccc; padding: 5px 10px; border-radius: 15px; display: flex; align-items: center; }
-    .tag.removida { background: #f8d7da; text-decoration: line-through; }
-    .tag span { margin-left: 8px; cursor: pointer; color: red; }
-    .hidden { display: none; }
-    #preview { background: #f9f9f9; border: 1px dashed #aaa; padding: 10px; margin-top: 20px; white-space: pre-wrap; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    input, button, select {
+      display: block;
+      margin: 10px 0;
+      padding: 8px;
+      width: 100%;
+    }
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .tag {
+      background: #e0e0e0;
+      padding: 5px 10px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+    }
+    .tag span {
+      margin-left: 8px;
+      cursor: pointer;
+      color: red;
+    }
+    .tag.removed {
+      background: #f8d7da;
+      text-decoration: line-through;
+    }
+    .tag.new {
+      background: #d4edda;
+    }
+    .hidden {
+      display: none;
+    }
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .suggestions button {
+      padding: 5px 10px;
+      border: none;
+      background: #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #preview {
+      background: #f9f9f9;
+      border: 1px dashed #aaa;
+      padding: 10px;
+      margin-top: 20px;
+      white-space: pre-wrap;
+    }
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .tab-buttons button {
+      padding: 10px;
+      cursor: pointer;
+      background: #ddd;
+      border: none;
+      border-radius: 5px;
+    }
+    .tab-content {
+      margin-top: 20px;
+    }
+    .bloco {
+      background: #f0f0f0;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    .bloco h3 {
+      margin: 0 0 5px 0;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .input-inline {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .input-inline input {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
@@ -27,12 +116,12 @@
     <label>Token do GitHub:</label>
     <input type="password" id="token" placeholder="GitHub Token" />
     <label>Repositório (owner/repo):</label>
-    <input type="text" id="repo" value="ifGarcia/githubaction" />
+    <input type="text" id="repo" value="usuario/repositorio" />
     <label>Branch:</label>
-    <input type="text" id="branch" value="gh-pages" />
+    <input type="text" id="branch" value="main" />
     <label>Caminho do arquivo:</label>
     <input type="text" id="filepath" value="access_control.json" />
-    <button onclick="carregarArquivo()">Carregar</button>
+    <button onclick="carregar()">Carregar</button>
 
     <div id="abas" class="hidden">
       <div class="tab-buttons">
@@ -58,14 +147,17 @@
     let dadosOriginais = {};
     let shaAtual = "";
 
-    function mostrarAba(nome) {
-      ["usuarios", "times", "workflows"].forEach(id => {
-        document.getElementById("aba-" + id).classList.add("hidden");
-      });
-      document.getElementById("aba-" + nome).classList.remove("hidden");
+    function carregar() {
+      const token = document.getElementById("token").value;
+      if (!token) {
+        alert("Token obrigatório");
+        return;
+      }
+      localStorage.setItem("github_token", token);
+      carregarArquivo();
     }
 
-    function carregarArquivo() {
+    async function carregarArquivo() {
       const token = document.getElementById("token").value;
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
@@ -73,30 +165,48 @@
 
       const url = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
 
-      fetch(url, {
+      const response = await fetch(url, {
         headers: {
           Authorization: `token ${token}`,
           Accept: "application/vnd.github.v3.raw"
         }
-      })
-      .then(response => {
-        shaAtual = response.headers.get("etag");
-        return response.text();
-      })
-      .then(content => {
-        const json = JSON.parse(content);
-        dadosOriginais = json;
-        renderizarAbas(json);
-      })
-      .catch(err => alert("Erro ao carregar: " + err));
-    }
+      });
 
-    function renderizarAbas(dados) {
-      if (!dados || !dados.automations) {
-        alert("Formato inválido");
+      if (!response.ok) {
+        alert("Erro ao carregar arquivo: " + response.statusText);
         return;
       }
 
+      const content = await response.text();
+      try {
+        const json = JSON.parse(content);
+        if (!json.automations) {
+          alert("Formato inválido");
+          return;
+        }
+        dadosOriginais = json;
+        renderizarAbas(json);
+        document.getElementById("abas").classList.remove("hidden");
+        mostrarAba("workflows");
+      } catch (e) {
+        alert("Erro ao interpretar JSON");
+      }
+
+      const meta = await fetch(url.replace("&ref=", "?ref="), {
+        headers: { Authorization: `token ${token}` }
+      });
+      const metaJson = await meta.json();
+      shaAtual = metaJson.sha;
+    }
+
+    function mostrarAba(nome) {
+      ["usuarios", "times", "workflows"].forEach(id => {
+        document.getElementById("aba-" + id).classList.add("hidden");
+      });
+      document.getElementById("aba-" + nome).classList.remove("hidden");
+    }
+
+    function renderizarAbas(dados) {
       const workflows = dados.automations;
       const usuarios = {};
       const times = {};
@@ -117,7 +227,7 @@
       for (const [user, wfs] of Object.entries(usuarios)) {
         const bloco = document.createElement("div");
         bloco.className = "bloco";
-        bloco.innerHTML = `<h3>� ${user}</h3><div class="tags">${wfs.map(w => criarTag(w, 'user', user)).join("")}</div>`;
+        bloco.innerHTML = `<h3>� ${user}</h3><div class="tags">${wfs.map(w => `<span class="tag">${w}</span>`).join("")}</div>`;
         abaUsuarios.appendChild(bloco);
       }
 
@@ -126,7 +236,7 @@
       for (const [team, wfs] of Object.entries(times)) {
         const bloco = document.createElement("div");
         bloco.className = "bloco";
-        bloco.innerHTML = `<h3>� ${team}</h3><div class="tags">${wfs.map(w => criarTag(w, 'team', team)).join("")}</div>`;
+        bloco.innerHTML = `<h3>� ${team}</h3><div class="tags">${wfs.map(w => `<span class="tag">${w}</span>`).join("")}</div>`;
         abaTimes.appendChild(bloco);
       }
 
@@ -137,81 +247,89 @@
         bloco.className = "bloco";
         bloco.innerHTML = `
           <h3>� ${workflow}</h3>
-          <strong>� Usuários:</strong> <div class="tags">${acesso.allowed_users.map(u => criarTag(u, 'workflow-user', workflow)).join("")}</div>
-          <strong>� Times:</strong> <div class="tags">${acesso.allowed_teams.map(t => criarTag(t, 'workflow-team', workflow)).join("")}</div>
+          <strong>� Usuários:</strong> <div class="tags" id="users-${workflow}">${acesso.allowed_users.map(u => tagHTML(u, false)).join("")}</div>
+          <div class="input-inline"><input placeholder="Novo usuário" onkeydown="if(event.key==='Enter'){addTag('${workflow}','user',this.value);this.value='';}"></div>
+          <strong>� Times:</strong> <div class="tags" id="teams-${workflow}">${acesso.allowed_teams.map(t => tagHTML(t, false)).join("")}</div>
+          <div class="input-inline"><input placeholder="Novo time" onkeydown="if(event.key==='Enter'){addTag('${workflow}','team',this.value);this.value='';}"></div>
         `;
         abaWorkflows.appendChild(bloco);
       }
-
-      document.getElementById("abas").classList.remove("hidden");
-      mostrarAba("workflows");
     }
 
-    function criarTag(valor, tipo, chave) {
-      const id = `${tipo}-${chave}-${valor}`.replace(/[^a-zA-Z0-9_-]/g, "_");
-      return `<span class="tag" id="${id}">${valor}<span onclick="toggleTag('${id}')">×</span></span>`;
+    function tagHTML(valor, isNew) {
+      return `<span class="tag${isNew ? ' new' : ''}" onclick="toggleTag(this, ${isNew})">${valor}<span>×</span></span>`;
     }
 
-    function toggleTag(id) {
-      const tag = document.getElementById(id);
-      if (tag.classList.contains("removida")) {
-        tag.classList.remove("removida");
+    function toggleTag(el, isNew) {
+      if (isNew) {
+        el.remove();
       } else {
-        tag.classList.add("removida");
+        el.classList.toggle("removed");
       }
+    }
+
+    function addTag(workflow, tipo, valor) {
+      if (!valor.trim()) return;
+      const container = document.getElementById((tipo === "user" ? "users-" : "teams-") + workflow);
+      const span = document.createElement("span");
+      span.className = "tag new";
+      span.innerHTML = `${valor}<span>×</span>`;
+      span.onclick = () => span.remove();
+      container.appendChild(span);
     }
 
     function preVisualizar() {
-      const novo = JSON.parse(JSON.stringify(dadosOriginais));
-      for (const [workflow, acesso] of Object.entries(novo.automations)) {
-        acesso.allowed_users = acesso.allowed_users.filter(u => {
-          const id = `workflow-user-${workflow}-${u}`.replace(/[^a-zA-Z0-9_-]/g, "_");
-          const el = document.getElementById(id);
-          return el && !el.classList.contains("removida");
-        });
-        acesso.allowed_teams = acesso.allowed_teams.filter(t => {
-          const id = `workflow-team-${workflow}-${t}`.replace(/[^a-zA-Z0-9_-]/g, "_");
-          const el = document.getElementById(id);
-          return el && !el.classList.contains("removida");
-        });
-      }
+      const novo = gerarNovoJSON();
       document.getElementById("preview-json").textContent = JSON.stringify(novo, null, 2);
       document.getElementById("preview").classList.remove("hidden");
     }
 
-    function salvarAlteracoes() {
+    function gerarNovoJSON() {
+      const novo = { automations: {} };
+      for (const [workflow, acesso] of Object.entries(dadosOriginais.automations)) {
+        const users = [...document.getElementById("users-" + workflow).children]
+          .filter(tag => !tag.classList.contains("removed"))
+          .map(tag => tag.childNodes[0].textContent);
+        const teams = [...document.getElementById("teams-" + workflow).children]
+          .filter(tag => !tag.classList.contains("removed"))
+          .map(tag => tag.childNodes[0].textContent);
+        novo.automations[workflow] = {
+          allowed_users: users,
+          allowed_teams: teams
+        };
+      }
+      return novo;
+    }
+
+    async function salvarAlteracoes() {
       const token = document.getElementById("token").value;
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
       const filepath = document.getElementById("filepath").value;
-
-      const novoConteudo = document.getElementById("preview-json").textContent;
-      const base64Content = btoa(unescape(encodeURIComponent(novoConteudo)));
-
       const url = `https://api.github.com/repos/${repo}/contents/${filepath}`;
 
-      fetch(url, {
+      const novoConteudo = gerarNovoJSON();
+      const novoBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(novoConteudo, null, 2))));
+
+      const response = await fetch(url, {
         method: "PUT",
         headers: {
           Authorization: `token ${token}`,
           Accept: "application/vnd.github.v3+json"
         },
         body: JSON.stringify({
-          message: "Atualização via página estática",
-          content: base64Content,
-          sha: shaAtual.replace(/"/g, ""),
+          message: "Atualizando access_control.json via página",
+          content: novoBase64,
+          sha: shaAtual,
           branch: branch
         })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.content) {
-          alert("Arquivo salvo com sucesso!");
-        } else {
-          alert("Erro ao salvar: " + JSON.stringify(data));
-        }
-      })
-      .catch(err => alert("Erro: " + err));
+      });
+
+      if (response.ok) {
+        alert("Arquivo salvo com sucesso!");
+      } else {
+        alert("Erro ao salvar: " + (await response.text()));
+      }
     }
   </script>
 </body>
