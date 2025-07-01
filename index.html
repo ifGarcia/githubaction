@@ -64,6 +64,38 @@
       margin-top: 20px;
       white-space: pre-wrap;
     }
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .tab-buttons button {
+      padding: 10px;
+      cursor: pointer;
+      background: #ddd;
+      border: none;
+      border-radius: 5px;
+    }
+    .tab-content {
+      margin-top: 20px;
+    }
+    .bloco {
+      background: #f0f0f0;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    .bloco h3 {
+      margin: 0 0 5px 0;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .tags .tag {
+      background: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -81,17 +113,17 @@
 
     <div id="editor" class="hidden">
       <label>Usuários:</label>
-      <div class="tag-container" id="tags-users"></div>
+      <div class="tag-container" id="tags-user"></div>
       <input type="text" id="input-user" placeholder="Digite usuário..." oninput="filtrar('user')" />
       <div class="suggestions" id="sugestoes-user"></div>
 
       <label>Times:</label>
-      <div class="tag-container" id="tags-teams"></div>
+      <div class="tag-container" id="tags-team"></div>
       <input type="text" id="input-team" placeholder="Digite time..." oninput="filtrar('team')" />
       <div class="suggestions" id="sugestoes-team"></div>
 
       <label>Workflows:</label>
-      <div class="tag-container" id="tags-workflows"></div>
+      <div class="tag-container" id="tags-workflow"></div>
       <input type="text" id="input-workflow" placeholder="Digite workflow..." oninput="filtrar('workflow')" />
       <div class="suggestions" id="sugestoes-workflow"></div>
 
@@ -101,6 +133,17 @@
     <div id="preview" class="hidden">
       <h2>Pré-visualização do Novo access_control.json</h2>
       <pre id="preview-json"></pre>
+    </div>
+
+    <div id="abas" class="hidden">
+      <div class="tab-buttons">
+        <button onclick="mostrarAba('usuarios')">Usuários</button>
+        <button onclick="mostrarAba('times')">Times</button>
+        <button onclick="mostrarAba('workflows')">Workflows</button>
+      </div>
+      <div id="aba-usuarios" class="tab-content hidden"></div>
+      <div id="aba-times" class="tab-content hidden"></div>
+      <div id="aba-workflows" class="tab-content hidden"></div>
     </div>
   </div>
 
@@ -124,6 +167,90 @@
       }
       localStorage.setItem("github_token", token);
       document.getElementById("editor").classList.remove("hidden");
+      carregarArquivo();
+    }
+
+    async function carregarArquivo() {
+      const token = document.getElementById("token").value;
+      const repo = document.getElementById("repo").value;
+      const branch = document.getElementById("branch").value;
+      const filepath = document.getElementById("filepath").value;
+
+      const url = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github.v3.raw"
+        }
+      });
+
+      if (!response.ok) {
+        alert("Erro ao carregar arquivo: " + response.statusText);
+        return;
+      }
+
+      const content = await response.text();
+      const json = JSON.parse(content);
+      renderizarAbas(json);
+    }
+
+    function mostrarAba(nome) {
+      ["usuarios", "times", "workflows"].forEach(id => {
+        document.getElementById("aba-" + id).classList.add("hidden");
+      });
+      document.getElementById("aba-" + nome).classList.remove("hidden");
+    }
+
+    function renderizarAbas(dados) {
+      const workflows = dados.org;
+      const usuarios = {};
+      const times = {};
+
+      for (const [workflow, acesso] of Object.entries(workflows)) {
+        acesso.allowed_users.forEach(user => {
+          if (!usuarios[user]) usuarios[user] = [];
+          usuarios[user].push(workflow);
+        });
+        acesso.allowed_teams.forEach(team => {
+          if (!times[team]) times[team] = [];
+          times[team].push(workflow);
+        });
+      }
+
+      const abaUsuarios = document.getElementById("aba-usuarios");
+      abaUsuarios.innerHTML = "";
+      for (const [user, wfs] of Object.entries(usuarios)) {
+        const bloco = document.createElement("div");
+        bloco.className = "bloco";
+        bloco.innerHTML = `<h3>� ${user}</h3><div class="tags">${wfs.map(w => `<span class="tag">${w}</span>`).join("")}</div>`;
+        abaUsuarios.appendChild(bloco);
+      }
+
+      const abaTimes = document.getElementById("aba-times");
+      abaTimes.innerHTML = "";
+      for (const [team, wfs] of Object.entries(times)) {
+        const bloco = document.createElement("div");
+        bloco.className = "bloco";
+        bloco.innerHTML = `<h3>� ${team}</h3><div class="tags">${wfs.map(w => `<span class="tag">${w}</span>`).join("")}</div>`;
+        abaTimes.appendChild(bloco);
+      }
+
+      const abaWorkflows = document.getElementById("aba-workflows");
+      abaWorkflows.innerHTML = "";
+      for (const [workflow, acesso] of Object.entries(workflows)) {
+        const bloco = document.createElement("div");
+        bloco.className = "bloco";
+        bloco.innerHTML = `
+          <h3>� ${workflow}</h3>
+          <strong>� Usuários:</strong> <div class="tags">${acesso.allowed_users.map(u => `<span class="tag">${u}</span>`).join("")}</div>
+          <strong>� Times:</strong> <div class="tags">${acesso.allowed_teams.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+        `;
+        abaWorkflows.appendChild(bloco);
+      }
+
+      document.getElementById("abas").classList.remove("hidden");
+      mostrarAba("workflows");
     }
 
     function adicionarTag(valor, tipo) {
