@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Editor de Access Control</title>
+  <title>Gerenciador de Acessos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,22 +14,35 @@
       background: white;
       padding: 20px;
       border-radius: 8px;
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
     }
-    input, button, textarea {
+    input, button, select {
       display: block;
       margin: 10px 0;
       padding: 8px;
       width: 100%;
     }
-    textarea {
-      height: 60px;
-    }
-    .workflow {
-      border: 1px solid #ccc;
-      padding: 10px;
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
       margin-bottom: 10px;
+    }
+    .tag {
+      background: #e0e0e0;
+      padding: 5px 10px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+    }
+    .tag span {
+      margin-left: 8px;
+      cursor: pointer;
+      color: red;
+    }
+    .hidden {
+      display: none;
     }
     #preview {
       background: #f9f9f9;
@@ -42,7 +55,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>Editor de Access Control</h1>
+    <h1>Gerenciador de Acessos</h1>
     <label>Token do GitHub:</label>
     <input type="password" id="token" placeholder="GitHub Token" />
     <label>Repositório (owner/repo):</label>
@@ -53,14 +66,53 @@
     <input type="text" id="filepath" value="access_control.json" />
     <button onclick="carregar()">Carregar</button>
 
-    <div id="editor" style="display:none;">
-      <h2>Workflows</h2>
-      <div id="workflow-list"></div>
+    <div id="editor" class="hidden">
+      <label>Tipo de controle:</label>
+      <select id="tipo" onchange="atualizarTipo()">
+        <option value="">Selecione</option>
+        <option value="users">Usuários</option>
+        <option value="teams">Times</option>
+        <option value="workflows">Workflows</option>
+      </select>
+
+      <div id="campo-users" class="hidden">
+        <label>Usuários:</label>
+        <div class="tag-container" id="tags-users"></div>
+        <input type="text" id="input-user" placeholder="Digite e pressione Enter" onkeydown="adicionarTag(event, 'users')" />
+        <label>Workflows:</label>
+        <div class="tag-container" id="tags-users-workflows"></div>
+        <input type="text" id="input-user-workflow" placeholder="Filtrar workflows..." oninput="filtrarWorkflows(event, 'users-workflows')" />
+        <div id="sugestoes-users-workflows"></div>
+      </div>
+
+      <div id="campo-teams" class="hidden">
+        <label>Times:</label>
+        <div class="tag-container" id="tags-teams"></div>
+        <input type="text" id="input-team" placeholder="Digite e pressione Enter" onkeydown="adicionarTag(event, 'teams')" />
+        <label>Workflows:</label>
+        <div class="tag-container" id="tags-teams-workflows"></div>
+        <input type="text" id="input-team-workflow" placeholder="Filtrar workflows..." oninput="filtrarWorkflows(event, 'teams-workflows')" />
+        <div id="sugestoes-teams-workflows"></div>
+      </div>
+
+      <div id="campo-workflows" class="hidden">
+        <label>Workflows:</label>
+        <div class="tag-container" id="tags-workflows"></div>
+        <input type="text" id="input-workflow" placeholder="Filtrar workflows..." oninput="filtrarWorkflows(event, 'workflows')" />
+        <div id="sugestoes-workflows"></div>
+        <label>Usuários:</label>
+        <div class="tag-container" id="tags-workflows-users"></div>
+        <input type="text" id="input-workflow-user" placeholder="Digite e pressione Enter" onkeydown="adicionarTag(event, 'workflows-users')" />
+        <label>Times:</label>
+        <div class="tag-container" id="tags-workflows-teams"></div>
+        <input type="text" id="input-workflow-team" placeholder="Digite e pressione Enter" onkeydown="adicionarTag(event, 'workflows-teams')" />
+      </div>
+
       <button onclick="preVisualizar()">Pré-visualizar Alterações</button>
       <button onclick="salvar()">Salvar e Commitar</button>
     </div>
 
-    <div id="preview" style="display:none;">
+    <div id="preview" class="hidden">
       <h2>Pré-visualização do Novo access_control.json</h2>
       <pre id="preview-json"></pre>
     </div>
@@ -69,37 +121,64 @@
   <script>
     let accessData = {};
     let shaAtual = "";
+    let workflowsDisponiveis = [];
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      const savedToken = localStorage.getItem("github_token");
-      if (savedToken) {
-        document.getElementById("token").value = savedToken;
+    function atualizarTipo() {
+      document.querySelectorAll("#campo-users, #campo-teams, #campo-workflows").forEach(div => div.classList.add("hidden"));
+      const tipo = document.getElementById("tipo").value;
+      if (tipo) document.getElementById("campo-" + tipo).classList.remove("hidden");
+    }
 
-        const res = await fetch("https://api.github.com/user", {
-          headers: {
-            Authorization: `Bearer ${savedToken}`,
-            Accept: "application/vnd.github.v3+json"
-          }
-        });
-
-        if (res.ok) {
-          const user = await res.json();
-          console.log("✅ Token válido. Usuário:", user.login);
-        } else {
-          console.warn("❌ Token inválido. Removendo do localStorage.");
-          localStorage.removeItem("github_token");
-          alert("Token inválido. Por favor, insira um novo.");
+    function adicionarTag(event, campo) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        const input = event.target;
+        const valor = input.value.trim();
+        if (valor) {
+          const container = document.getElementById("tags-" + campo);
+          const tag = document.createElement("div");
+          tag.className = "tag";
+          tag.textContent = valor;
+          const span = document.createElement("span");
+          span.textContent = "×";
+          span.onclick = () => tag.remove();
+          tag.appendChild(span);
+          container.appendChild(tag);
+          input.value = "";
         }
       }
-    });
+    }
+
+    function filtrarWorkflows(event, campo) {
+      const termo = event.target.value.toLowerCase();
+      const sugestoes = workflowsDisponiveis.filter(wf => wf.toLowerCase().includes(termo));
+      const div = document.getElementById("sugestoes-" + campo);
+      div.innerHTML = "";
+      sugestoes.forEach(wf => {
+        const btn = document.createElement("button");
+        btn.textContent = wf;
+        btn.onclick = () => {
+          const container = document.getElementById("tags-" + campo);
+          if (![...container.children].some(c => c.textContent.includes(wf))) {
+            const tag = document.createElement("div");
+            tag.className = "tag";
+            tag.textContent = wf;
+            const span = document.createElement("span");
+            span.textContent = "×";
+            span.onclick = () => tag.remove();
+            tag.appendChild(span);
+            container.appendChild(tag);
+          }
+        };
+        div.appendChild(btn);
+      });
+    }
 
     async function carregar() {
       const token = document.getElementById("token").value;
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
       const filepath = document.getElementById("filepath").value;
-
-      localStorage.setItem("github_token", token);
 
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -110,46 +189,49 @@
       const data = await res.json();
       shaAtual = data.sha;
       const content = JSON.parse(atob(data.content));
-
       accessData = content;
-      document.getElementById("editor").style.display = "block";
+      document.getElementById("editor").classList.remove("hidden");
 
       const org = Object.keys(content)[0];
-      const workflows = content[org];
-      const container = document.getElementById("workflow-list");
-      container.innerHTML = "";
+      workflowsDisponiveis = Object.keys(content[org]);
+    }
 
-      Object.entries(workflows).forEach(([wf, perms]) => {
-        const div = document.createElement("div");
-        div.className = "workflow";
-        div.innerHTML = `
-          <strong>${wf}</strong><br/>
-          <label>allowed_users:</label>
-          <textarea data-wf="${wf}" data-type="users">${perms.allowed_users.join(", ")}</textarea>
-          <label>allowed_teams:</label>
-          <textarea data-wf="${wf}" data-type="teams">${perms.allowed_teams.join(", ")}</textarea>
-        `;
-        container.appendChild(div);
-      });
+    function getTags(id) {
+      return [...document.getElementById("tags-" + id).children].map(tag => tag.firstChild.textContent);
     }
 
     function preVisualizar() {
+      const tipo = document.getElementById("tipo").value;
       const org = Object.keys(accessData)[0];
-      const newData = {};
-      newData[org] = {};
+      const novo = JSON.parse(JSON.stringify(accessData));
 
-      document.querySelectorAll(".workflow").forEach(div => {
-        const wf = div.querySelector("textarea").dataset.wf;
-        const users = div.querySelector("textarea[data-type='users']").value.split(",").map(s => s.trim()).filter(Boolean);
-        const teams = div.querySelector("textarea[data-type='teams']").value.split(",").map(s => s.trim()).filter(Boolean);
-        newData[org][wf] = {
-          allowed_users: users,
-          allowed_teams: teams
-        };
-      });
+      if (tipo === "users") {
+        const users = getTags("users");
+        const workflows = getTags("users-workflows");
+        workflows.forEach(wf => {
+          if (!novo[org][wf]) novo[org][wf] = { allowed_users: [], allowed_teams: [] };
+          novo[org][wf].allowed_users = [...new Set([...novo[org][wf].allowed_users, ...users])];
+        });
+      } else if (tipo === "teams") {
+        const teams = getTags("teams");
+        const workflows = getTags("teams-workflows");
+        workflows.forEach(wf => {
+          if (!novo[org][wf]) novo[org][wf] = { allowed_users: [], allowed_teams: [] };
+          novo[org][wf].allowed_teams = [...new Set([...novo[org][wf].allowed_teams, ...teams])];
+        });
+      } else if (tipo === "workflows") {
+        const workflows = getTags("workflows");
+        const users = getTags("workflows-users");
+        const teams = getTags("workflows-teams");
+        workflows.forEach(wf => {
+          if (!novo[org][wf]) novo[org][wf] = { allowed_users: [], allowed_teams: [] };
+          novo[org][wf].allowed_users = [...new Set([...novo[org][wf].allowed_users, ...users])];
+          novo[org][wf].allowed_teams = [...new Set([...novo[org][wf].allowed_teams, ...teams])];
+        });
+      }
 
-      document.getElementById("preview-json").textContent = JSON.stringify(newData, null, 2);
-      document.getElementById("preview").style.display = "block";
+      document.getElementById("preview-json").textContent = JSON.stringify(novo, null, 2);
+      document.getElementById("preview").classList.remove("hidden");
     }
 
     async function salvar() {
@@ -157,22 +239,9 @@
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
       const filepath = document.getElementById("filepath").value;
+      const novo = JSON.parse(document.getElementById("preview-json").textContent);
 
-      const org = Object.keys(accessData)[0];
-      const newData = {};
-      newData[org] = {};
-
-      document.querySelectorAll(".workflow").forEach(div => {
-        const wf = div.querySelector("textarea").dataset.wf;
-        const users = div.querySelector("textarea[data-type='users']").value.split(",").map(s => s.trim()).filter(Boolean);
-        const teams = div.querySelector("textarea[data-type='teams']").value.split(",").map(s => s.trim()).filter(Boolean);
-        newData[org][wf] = {
-          allowed_users: users,
-          allowed_teams: teams
-        };
-      });
-
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(newData, null, 2))));
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(novo, null, 2))));
       const payload = {
         message: "� Atualiza access_control.json via página web",
         content: encoded,
