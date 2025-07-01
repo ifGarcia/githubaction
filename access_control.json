@@ -1,0 +1,342 @@
+{
+  "automations": {
+    "acessos-github.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "autosync-branch.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "branch-delete.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "check-branchs-differences.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "coleta-chaves-cofre.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "core-release.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "create-product-on-jira.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "create-queue.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "delete-queue.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "deploy-ti-environment.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "deploy-zip.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "execute-batch-tu-ti.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "fortify-copy-current-state.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "garbage-collector.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "gateway.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "generate-report.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-scale-node-tu-aut.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-scale-node-tu.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-th-batch-and-ctg-scale-up-int.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-th-scale-down.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-th-scale-up.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-ti-lado-a-scale-down.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-ti-lado-a-scale-up.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-ti-lado-b-scale-down.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-ti-lado-b-scale-up.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-tu-scale-down.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "k8s-tu-scale-up.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "list-queue.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "list-repo-versions.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-environment-provider.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-environment-remove.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-k8s-scale.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-pdb-create.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-pdb-drop.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-pdb-import.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-pdb-list.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-pdb-script.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-pdb-update-adm.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "nep-report-and-track-removal.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "offboarding-exec.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "rdm-composicao-aux.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "release-notes.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "release-undo-tag.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "repository-configure.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "repository-create.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "repository-environemnt-copy.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "reset-password-pdb-oracle-ti.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "reset-password-pdb-oracle-tu.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "rm-cadastro-properties-nep.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "rm-create-plano-implantacao-bd.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "rm-exec-script-sit-hibrido.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "rm-pos-implantacao.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "teste_action-validate-access.yaml": {
+      "allowed_users": [
+        "bruno-garcia"
+      ],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "undo-release.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "update-generic-control.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    },
+    "update-libraries.yaml": {
+      "allowed_users": [],
+      "allowed_teams": [
+        "next-release-management"
+      ]
+    }
+  }
+}
