@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -123,11 +124,10 @@
   </div>
 
   <script>
-    let dadosOriginais = {};
-    let dadosEditados = {};
     let shaAtual = "";
     let accessData = {};
-    let workflowsDisponiveis = [];
+    let dadosOriginais = {};
+    let dadosEditados = {};
 
     function mostrarAba(nome) {
       ["usuarios", "times", "workflows"].forEach(id => {
@@ -156,12 +156,12 @@
         accessData = content;
 
         const org = Object.keys(content)[0];
-        workflowsDisponiveis = Object.keys(content[org]);
+        const workflows = content[org];
 
-        dadosOriginais = JSON.parse(JSON.stringify(content[org]));
-        dadosEditados = JSON.parse(JSON.stringify(content[org]));
+        dadosOriginais = JSON.parse(JSON.stringify(workflows));
+        dadosEditados = JSON.parse(JSON.stringify(workflows));
 
-        renderizarAbas(content[org]);
+        renderizarAbas(workflows);
         document.getElementById("abas").classList.remove("hidden");
         mostrarAba("workflows");
       } catch (err) {
@@ -190,7 +190,9 @@
       for (const [user, wfs] of Object.entries(usuarios)) {
         const bloco = document.createElement("div");
         bloco.className = "bloco";
-        bloco.innerHTML = `<h3>� ${user}</h3><div class="tags">${wfs.map(w => `<span class="tag">${w}</span>`).join("")}</div>`;
+        bloco.innerHTML = `<h3>� ${user}</h3>
+          <div class="tags" id="tags-user-${user}">${wfs.map(w => criarTagHTML(w, user, "user")).join("")}</div>
+          <input type="text" placeholder="Adicionar workflow..." onkeydown="adicionarTag(event, '${user}', 'user')" />`;
         abaUsuarios.appendChild(bloco);
       }
 
@@ -199,7 +201,9 @@
       for (const [team, wfs] of Object.entries(times)) {
         const bloco = document.createElement("div");
         bloco.className = "bloco";
-        bloco.innerHTML = `<h3>� ${team}</h3><div class="tags">${wfs.map(w => `<span class="tag">${w}</span>`).join("")}</div>`;
+        bloco.innerHTML = `<h3>� ${team}</h3>
+          <div class="tags" id="tags-team-${team}">${wfs.map(w => criarTagHTML(w, team, "team")).join("")}</div>
+          <input type="text" placeholder="Adicionar workflow..." onkeydown="adicionarTag(event, '${team}', 'team')" />`;
         abaTimes.appendChild(bloco);
       }
 
@@ -221,21 +225,21 @@
       }
     }
 
-    function criarTagHTML(valor, workflow, tipo, nova=false) {
+    function criarTagHTML(valor, chave, tipo, nova=false) {
       const classe = nova ? "tag added" : "tag";
-      return `<span class="${classe}" data-wf="${workflow}" data-tipo="${tipo}" data-novo="${nova}" onclick="removerTag(this)">${valor}<span>×</span></span>`;
+      return `<span class="${classe}" data-chave="${chave}" data-tipo="${tipo}" data-novo="${nova}" onclick="removerTag(this)">${valor}<span>×</span></span>`;
     }
 
-    function adicionarTag(event, workflow, tipo) {
+    function adicionarTag(event, chave, tipo) {
       if (event.key !== "Enter") return;
       const valor = event.target.value.trim();
       if (!valor) return;
-      const container = document.getElementById(`tags-${tipo}s-${workflow}`);
+      const container = document.getElementById(`tags-${tipo}-${chave}`);
       const existente = [...container.children].some(tag => tag.textContent.includes(valor));
       if (existente) return;
       const span = document.createElement("span");
       span.className = "tag added";
-      span.dataset.wf = workflow;
+      span.dataset.chave = chave;
       span.dataset.tipo = tipo;
       span.dataset.novo = "true";
       span.innerHTML = `${valor}<span onclick="removerTag(this.parentElement)">×</span>`;
@@ -253,21 +257,48 @@
 
     function preVisualizar() {
       const novo = JSON.parse(JSON.stringify(dadosOriginais));
+
+      // Atualiza workflows
       for (const [workflow, acesso] of Object.entries(novo)) {
         const users = document.getElementById(`tags-users-${workflow}`);
         const teams = document.getElementById(`tags-teams-${workflow}`);
-        acesso.allowed_users = [...users.children]
-          .filter(tag => !tag.classList.contains("removed"))
-          .map(tag => tag.childNodes[0].textContent);
-        acesso.allowed_teams = [...teams.children]
-          .filter(tag => !tag.classList.contains("removed"))
-          .map(tag => tag.childNodes[0].textContent);
+        if (users && teams) {
+          acesso.allowed_users = [...users.children].filter(tag => !tag.classList.contains("removed")).map(tag => tag.childNodes[0].textContent);
+          acesso.allowed_teams = [...teams.children].filter(tag => !tag.classList.contains("removed")).map(tag => tag.childNodes[0].textContent);
+        }
       }
+
+      // Atualiza usuários
+      for (const userDiv of document.querySelectorAll('[id^="tags-user-"]')) {
+        const user = userDiv.id.replace("tags-user-", "");
+        const workflows = [...userDiv.children].filter(tag => !tag.classList.contains("removed")).map(tag => tag.childNodes[0].textContent);
+        for (const wf of Object.keys(novo)) {
+          if (workflows.includes(wf)) {
+            if (!novo[wf].allowed_users.includes(user)) novo[wf].allowed_users.push(user);
+          } else {
+            novo[wf].allowed_users = novo[wf].allowed_users.filter(u => u !== user);
+          }
+        }
+      }
+
+      // Atualiza times
+      for (const teamDiv of document.querySelectorAll('[id^="tags-team-"]')) {
+        const team = teamDiv.id.replace("tags-team-", "");
+        const workflows = [...teamDiv.children].filter(tag => !tag.classList.contains("removed")).map(tag => tag.childNodes[0].textContent);
+        for (const wf of Object.keys(novo)) {
+          if (workflows.includes(wf)) {
+            if (!novo[wf].allowed_teams.includes(team)) novo[wf].allowed_teams.push(team);
+          } else {
+            novo[wf].allowed_teams = novo[wf].allowed_teams.filter(t => t !== team);
+          }
+        }
+      }
+
       dadosEditados = novo;
       const org = Object.keys(accessData)[0];
-      const finalData = {};
-      finalData[org] = novo;
-      document.getElementById("preview-json").textContent = JSON.stringify(finalData, null, 2);
+      const final = {};
+      final[org] = novo;
+      document.getElementById("preview-json").textContent = JSON.stringify(final, null, 2);
       document.getElementById("preview").classList.remove("hidden");
     }
 
