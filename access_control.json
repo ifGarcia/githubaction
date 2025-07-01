@@ -314,10 +314,12 @@
     },
     "teste_action-validate-access.yaml": {
       "allowed_users": [
-        "bruno-garcia"
+        "bruno-garcia",
+        "teste-bruno"
       ],
       "allowed_teams": [
-        "next-release-management"
+        "next-release-management",
+        "time-teste"
       ]
     },
     "undo-release.yaml": {
