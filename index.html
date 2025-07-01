@@ -4,175 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gerenciador de Acessos</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 900px;
-      margin: auto;
-    }
-    input, button, select {
-      display: block;
-      margin: 10px 0;
-      padding: 8px;
-      width: 100%;
-    }
-    .tag-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-bottom: 10px;
-    }
-    .tag {
-      background: #e0e0e0;
-      padding: 5px 10px;
-      border-radius: 15px;
-      display: flex;
-      align-items: center;
-    }
-    .tag span {
-      margin-left: 8px;
-      cursor: pointer;
-      color: red;
-    }
-    .hidden {
-      display: none;
-    }
-    #preview {
-      background: #f9f9f9;
-      border: 1px dashed #aaa;
-      padding: 10px;
-      margin-top: 20px;
-      white-space: pre-wrap;
-    }
-  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Gerenciador de Acessos</h1>
-    <label>Token do GitHub:</label>
-    <input type="password" id="token" placeholder="GitHub Token" />
-    <label>Repositório (owner/repo):</label>
-    <input type="text" id="repo" value="ifGarcia/githubaction" />
-    <label>Branch:</label>
-    <input type="text" id="branch" value="gh-pages" />
-    <label>Caminho do arquivo:</label>
-    <input type="text" id="filepath" value="access_control.json" />
-    <button onclick="carregar()">Carregar</button>
+  <h1>Gerenciador de Acessos</h1>
 
-    <div id="editor" class="hidden">
-      <label>Tipo de controle:</label>
-      <select id="tipo" onchange="atualizarTipo()">
-        <option value="">Selecione</option>
-        <option value="users">Usuários</option>
-        <option value="teams">Times</option>
-        <option value="workflows">Workflows</option>
-      </select>
+  <label>Token do GitHub:</label>
+  <input type="password" id="token" placeholder="GitHub Token" />
 
-      <div id="campo-users" class="hidden">
-        <label>Usuários:</label>
-        <div class="tag-container" id="tags-users"></div>
-        <input type="text" id="input-user" placeholder="Digite e pressione Enter" onkeydown="adicionarTag(event, 'users')" />
-        <label>Workflows:</label>
-        <div class="tag-container" id="tags-users-workflows"></div>
-        <input type="text" id="input-user-workflow" placeholder="Filtrar workflows..." oninput="filtrarWorkflows(event, 'users-workflows')" />
-        <div id="sugestoes-users-workflows"></div>
-      </div>
+  <label>Repositório (owner/repo):</label>
+  <input type="text" id="repo" value="ifGarcia/githubaction" />
 
-      <div id="campo-teams" class="hidden">
-        <label>Times:</label>
-        <div class="tag-container" id="tags-teams"></div>
-        <input type="text" id="input-team" placeholder="Digite e pressione Enter" onkeydown="adicionarTag(event, 'teams')" />
-        <label>Workflows:</label>
-        <div class="tag-container" id="tags-teams-workflows"></div>
-        <input type="text" id="input-team-workflow" placeholder="Filtrar workflows..." oninput="filtrarWorkflows(event, 'teams-workflows')" />
-        <div id="sugestoes-teams-workflows"></div>
-      </div>
+  <label>Branch:</label>
+  <input type="text" id="branch" value="gh-pages" />
 
-      <div id="campo-workflows" class="hidden">
-        <label>Workflows:</label>
-        <div class="tag-container" id="tags-workflows"></div>
-        <input type="text" id="input-workflow" placeholder="Filtrar workflows..." oninput="filtrarWorkflows(event, 'workflows')" />
-        <div id="sugestoes-workflows"></div>
-        <label>Usuários:</label>
-        <div class="tag-container" id="tags-workflows-users"></div>
-        <input type="text" id="input-workflow-user" placeholder="Digite e pressione Enter" onkeydown="adicionarTag(event, 'workflows-users')" />
-        <label>Times:</label>
-        <div class="tag-container" id="tags-workflows-teams"></div>
-        <input type="text" id="input-workflow-team" placeholder="Digite e pressione Enter" onkeydown="adicionarTag(event, 'workflows-teams')" />
-      </div>
+  <label>Caminho do arquivo:</label>
+  <input type="text" id="filepath" value="access_control.json" />
 
-      <button onclick="preVisualizar()">Pré-visualizar Alterações</button>
-      <button onclick="salvar()">Salvar e Commitar</button>
-    </div>
-
-    <div id="preview" class="hidden">
-      <h2>Pré-visualização do Novo access_control.json</h2>
-      <pre id="preview-json"></pre>
-    </div>
-  </div>
+  <button onclick="carregar()">Carregar</button>
 
   <script>
-    let accessData = {};
-    let shaAtual = "";
-    let workflowsDisponiveis = [];
+    document.addEventListener("DOMContentLoaded",.getElementById("token").value = savedToken;
 
-    function atualizarTipo() {
-      document.querySelectorAll("#campo-users, #campo-teams, #campo-workflows").forEach(div => div.classList.add("hidden"));
-      const tipo = document.getElementById("tipo").value;
-      if (tipo) document.getElementById("campo-" + tipo).classList.remove("hidden");
-    }
+        const res = await fetch("https://api.github.com/user", {
+          headers: {
+            Authorization: `Bearer ${savedToken}`,
+            Accept: "application/vnd.github.v3+json"
+          }
+        });
 
-    function adicionarTag(event, campo) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        const input = event.target;
-        const valor = input.value.trim();
-        if (valor) {
-          const container = document.getElementById("tags-" + campo);
-          const tag = document.createElement("div");
-          tag.className = "tag";
-          tag.textContent = valor;
-          const span = document.createElement("span");
-          span.textContent = "×";
-          span.onclick = () => tag.remove();
-          tag.appendChild(span);
-          container.appendChild(tag);
-          input.value = "";
+        if (res.ok) {
+          console.log("✅ Token válido.");
+        } else {
+          localStorage.removeItem("github_token");
+          alert("Token inválido. Por favor, insira um novo.");
         }
       }
-    }
-
-    function filtrarWorkflows(event, campo) {
-      const termo = event.target.value.toLowerCase();
-      const sugestoes = workflowsDisponiveis.filter(wf => wf.toLowerCase().includes(termo));
-      const div = document.getElementById("sugestoes-" + campo);
-      div.innerHTML = "";
-      sugestoes.forEach(wf => {
-        const btn = document.createElement("button");
-        btn.textContent = wf;
-        btn.onclick = () => {
-          const container = document.getElementById("tags-" + campo);
-          if (![...container.children].some(c => c.textContent.includes(wf))) {
-            const tag = document.createElement("div");
-            tag.className = "tag";
-            tag.textContent = wf;
-            const span = document.createElement("span");
-            span.textContent = "×";
-            span.onclick = () => tag.remove();
-            tag.appendChild(span);
-            container.appendChild(tag);
-          }
-        };
-        div.appendChild(btn);
-      });
-    }
+    });
 
     async function carregar() {
       const token = document.getElementById("token").value;
@@ -180,92 +47,22 @@
       const branch = document.getElementById("branch").value;
       const filepath = document.getElementById("filepath").value;
 
+      localStorage.setItem("github_token", token);
+
       const headers = {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.v3+json"
       };
 
-      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`, { headers });
-      const data = await res.json();
-      shaAtual = data.sha;
-      const content = JSON.parse(atob(data.content));
-      accessData = content;
-      document.getElementById("editor").classList.remove("hidden");
-
-      const org = Object.keys(content)[0];
-      workflowsDisponiveis = Object.keys(content[org]);
-    }
-
-    function getTags(id) {
-      return [...document.getElementById("tags-" + id).children].map(tag => tag.firstChild.textContent);
-    }
-
-    function preVisualizar() {
-      const tipo = document.getElementById("tipo").value;
-      const org = Object.keys(accessData)[0];
-      const novo = JSON.parse(JSON.stringify(accessData));
-
-      if (tipo === "users") {
-        const users = getTags("users");
-        const workflows = getTags("users-workflows");
-        workflows.forEach(wf => {
-          if (!novo[org][wf]) novo[org][wf] = { allowed_users: [], allowed_teams: [] };
-          novo[org][wf].allowed_users = [...new Set([...novo[org][wf].allowed_users, ...users])];
-        });
-      } else if (tipo === "teams") {
-        const teams = getTags("teams");
-        const workflows = getTags("teams-workflows");
-        workflows.forEach(wf => {
-          if (!novo[org][wf]) novo[org][wf] = { allowed_users: [], allowed_teams: [] };
-          novo[org][wf].allowed_teams = [...new Set([...novo[org][wf].allowed_teams, ...teams])];
-        });
-      } else if (tipo === "workflows") {
-        const workflows = getTags("workflows");
-        const users = getTags("workflows-users");
-        const teams = getTags("workflows-teams");
-        workflows.forEach(wf => {
-          if (!novo[org][wf]) novo[org][wf] = { allowed_users: [], allowed_teams: [] };
-          novo[org][wf].allowed_users = [...new Set([...novo[org][wf].allowed_users, ...users])];
-          novo[org][wf].allowed_teams = [...new Set([...novo[org][wf].allowed_teams, ...teams])];
-        });
-      }
-
-      document.getElementById("preview-json").textContent = JSON.stringify(novo, null, 2);
-      document.getElementById("preview").classList.remove("hidden");
-    }
-
-    async function salvar() {
-      const token = document.getElementById("token").value;
-      const repo = document.getElementById("repo").value;
-      const branch = document.getElementById("branch").value;
-      const filepath = document.getElementById("filepath").value;
-      const novo = JSON.parse(document.getElementById("preview-json").textContent);
-
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(novo, null, 2))));
-      const payload = {
-        message: "� Atualiza access_control.json via página web",
-        content: encoded,
-        sha: shaAtual,
-        branch: branch
-      };
-
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github.v3+json",
-        "Content-Type": "application/json"
-      };
-
-      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filepath}`, {
-        method: "PUT",
-        headers,
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        alert("✅ Commit realizado com sucesso!");
-      } else {
-        const err = await res.json();
-        alert("❌ Erro: " + err.message);
+      try {
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`, { headers });
+        const data = await res.json();
+        const content = JSON.parse(atob(data.content));
+        console.log("✅ Arquivo carregado:", content);
+        alert("Arquivo carregado com sucesso!");
+      } catch (err) {
+        console.error("❌ Erro ao carregar arquivo:", err);
+        alert("Erro ao carregar o arquivo.");
       }
     }
   </script>
