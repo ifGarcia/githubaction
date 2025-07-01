@@ -100,7 +100,7 @@
     <input type="text" id="branch" value="gh-pages" />
     <label>Caminho do arquivo:</label>
     <input type="text" id="filepath" value="access_control.json" />
-    <button onclick="carregarArquivo()">Carregar</button>
+    <button onclick="carregar()">Carregar</button>
 
     <div id="abas" class="hidden">
       <div class="tab-buttons">
@@ -114,7 +114,7 @@
     </div>
 
     <button onclick="preVisualizar()">Pré-visualizar Alterações</button>
-    <button onclick="salvarAlteracoes()">Salvar Alterações</button>
+    <button onclick="salvar()">Salvar Alterações</button>
 
     <div id="preview" class="hidden">
       <h2>Pré-visualização do Novo access_control.json</h2>
@@ -125,6 +125,9 @@
   <script>
     let dadosOriginais = {};
     let dadosEditados = {};
+    let shaAtual = "";
+    let accessData = {};
+    let workflowsDisponiveis = [];
 
     function mostrarAba(nome) {
       ["usuarios", "times", "workflows"].forEach(id => {
@@ -133,36 +136,41 @@
       document.getElementById("aba-" + nome).classList.remove("hidden");
     }
 
-    function carregarArquivo() {
+    async function carregar() {
       const token = document.getElementById("token").value;
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
       const filepath = document.getElementById("filepath").value;
 
-      const url = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github.v3+json"
+      };
 
-      fetch(url, {
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: "application/vnd.github.v3.raw"
-        }
-      })
-      .then(res => {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`, { headers });
         if (!res.ok) throw new Error("Erro ao carregar arquivo");
-        return res.text();
-      })
-      .then(text => {
-        const json = JSON.parse(text);
-        if (!json.automations) throw new Error("Formato inválido");
-        dadosOriginais = JSON.parse(JSON.stringify(json));
-        dadosEditados = JSON.parse(JSON.stringify(json));
-        renderizarAbas(json);
-      })
-      .catch(err => alert(err.message));
+        const data = await res.json();
+        shaAtual = data.sha;
+        const content = JSON.parse(atob(data.content));
+        accessData = content;
+
+        const org = Object.keys(content)[0];
+        workflowsDisponiveis = Object.keys(content[org]);
+
+        dadosOriginais = JSON.parse(JSON.stringify(content[org]));
+        dadosEditados = JSON.parse(JSON.stringify(content[org]));
+
+        renderizarAbas(content[org]);
+        document.getElementById("abas").classList.remove("hidden");
+        mostrarAba("workflows");
+      } catch (err) {
+        alert("Erro: " + err.message);
+      }
     }
 
     function renderizarAbas(dados) {
-      const workflows = dados.automations;
+      const workflows = dados;
       const usuarios = {};
       const times = {};
 
@@ -201,7 +209,7 @@
         const bloco = document.createElement("div");
         bloco.className = "bloco";
         bloco.innerHTML = `
-          <h3>� ${workflow}</h3>
+          <h3>⚙️ ${workflow}</h3>
           <strong>� Usuários:</strong>
           <div class="tags" id="tags-users-${workflow}">${acesso.allowed_users.map(u => criarTagHTML(u, workflow, "user")).join("")}</div>
           <input type="text" placeholder="Adicionar usuário..." onkeydown="adicionarTag(event, '${workflow}', 'user')" />
@@ -211,9 +219,6 @@
         `;
         abaWorkflows.appendChild(bloco);
       }
-
-      document.getElementById("abas").classList.remove("hidden");
-      mostrarAba("workflows");
     }
 
     function criarTagHTML(valor, workflow, tipo, nova=false) {
@@ -248,7 +253,7 @@
 
     function preVisualizar() {
       const novo = JSON.parse(JSON.stringify(dadosOriginais));
-      for (const [workflow, acesso] of Object.entries(novo.automations)) {
+      for (const [workflow, acesso] of Object.entries(novo)) {
         const users = document.getElementById(`tags-users-${workflow}`);
         const teams = document.getElementById(`tags-teams-${workflow}`);
         acesso.allowed_users = [...users.children]
@@ -259,45 +264,45 @@
           .map(tag => tag.childNodes[0].textContent);
       }
       dadosEditados = novo;
-      document.getElementById("preview-json").textContent = JSON.stringify(novo, null, 2);
+      const org = Object.keys(accessData)[0];
+      const finalData = {};
+      finalData[org] = novo;
+      document.getElementById("preview-json").textContent = JSON.stringify(finalData, null, 2);
       document.getElementById("preview").classList.remove("hidden");
     }
 
-    async function salvarAlteracoes() {
+    async function salvar() {
       const token = document.getElementById("token").value;
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
       const filepath = document.getElementById("filepath").value;
+      const novo = JSON.parse(document.getElementById("preview-json").textContent);
 
-      const getUrl = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
-      const getResponse = await fetch(getUrl, {
-        headers: {
-          Authorization: `token ${token}`
-        }
-      });
-      const getData = await getResponse.json();
-      const sha = getData.sha;
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(novo, null, 2))));
+      const payload = {
+        message: "� Atualiza access_control.json via página web",
+        content: encoded,
+        sha: shaAtual,
+        branch: branch
+      };
 
-      const novoBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(dadosEditados, null, 2))));
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github.v3+json",
+        "Content-Type": "application/json"
+      };
 
-      const putResponse = await fetch(getUrl, {
+      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filepath}`, {
         method: "PUT",
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: "application/vnd.github.v3+json"
-        },
-        body: JSON.stringify({
-          message: "Atualizando access_control.json via página estática",
-          content: novoBase64,
-          sha: sha,
-          branch: branch
-        })
+        headers,
+        body: JSON.stringify(payload)
       });
 
-      if (putResponse.ok) {
-        alert("Arquivo atualizado com sucesso!");
+      if (res.ok) {
+        alert("✅ Commit realizado com sucesso!");
       } else {
-        alert("Erro ao salvar: " + (await putResponse.text()));
+        const err = await res.json();
+        alert("❌ Erro: " + err.message);
       }
     }
   </script>
