@@ -15,7 +15,7 @@
       background: white;
       padding: 20px;
       border-radius: 8px;
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
     }
     input, button, select {
@@ -24,45 +24,8 @@
       padding: 8px;
       width: 100%;
     }
-    .tag-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-bottom: 10px;
-    }
-    .tag {
-      background: #e0e0e0;
-      padding: 5px 10px;
-      border-radius: 15px;
-      display: flex;
-      align-items: center;
-    }
-    .tag span {
-      margin-left: 8px;
-      cursor: pointer;
-      color: red;
-    }
     .hidden {
       display: none;
-    }
-    .suggestions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    .suggestions button {
-      padding: 5px 10px;
-      border: none;
-      background: #ddd;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #preview {
-      background: #f9f9f9;
-      border: 1px dashed #aaa;
-      padding: 10px;
-      margin-top: 20px;
-      white-space: pre-wrap;
     }
     .tab-buttons {
       display: flex;
@@ -93,8 +56,17 @@
       flex-wrap: wrap;
       gap: 5px;
     }
-    .tags .tag {
+    .tag {
       background: #ccc;
+      padding: 5px 10px;
+      border-radius: 15px;
+    }
+    #preview {
+      background: #f9f9f9;
+      border: 1px dashed #aaa;
+      padding: 10px;
+      margin-top: 20px;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -111,30 +83,6 @@
     <input type="text" id="filepath" value="access_control.json" />
     <button onclick="carregar()">Carregar</button>
 
-    <div id="editor" class="hidden">
-      <label>Usuários:</label>
-      <div class="tag-container" id="tags-user"></div>
-      <input type="text" id="input-user" placeholder="Digite usuário..." oninput="filtrar('user')" />
-      <div class="suggestions" id="sugestoes-user"></div>
-
-      <label>Times:</label>
-      <div class="tag-container" id="tags-team"></div>
-      <input type="text" id="input-team" placeholder="Digite time..." oninput="filtrar('team')" />
-      <div class="suggestions" id="sugestoes-team"></div>
-
-      <label>Workflows:</label>
-      <div class="tag-container" id="tags-workflow"></div>
-      <input type="text" id="input-workflow" placeholder="Digite workflow..." oninput="filtrar('workflow')" />
-      <div class="suggestions" id="sugestoes-workflow"></div>
-
-      <button onclick="preVisualizar()">Pré-visualizar Alterações</button>
-    </div>
-
-    <div id="preview" class="hidden">
-      <h2>Pré-visualização do Novo access_control.json</h2>
-      <pre id="preview-json"></pre>
-    </div>
-
     <div id="abas" class="hidden">
       <div class="tab-buttons">
         <button onclick="mostrarAba('usuarios')">Usuários</button>
@@ -145,56 +93,15 @@
       <div id="aba-times" class="tab-content hidden"></div>
       <div id="aba-workflows" class="tab-content hidden"></div>
     </div>
+
+    <button onclick="preVisualizar()">Pré-visualizar Alterações</button>
+    <div id="preview" class="hidden">
+      <h2>Pré-visualização do Novo access_control.json</h2>
+      <pre id="preview-json"></pre>
+    </div>
   </div>
 
   <script>
-    const usuarios = ["alice", "bob", "carol", "dave"];
-    const times = ["devs", "ops", "qa"];
-    const workflows = ["build.yml", "deploy.yml", "test.yml"];
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const savedToken = localStorage.getItem("github_token");
-      if (savedToken) {
-        document.getElementById("token").value = savedToken;
-      }
-    });
-
-    function carregar() {
-      const token = document.getElementById("token").value;
-      if (!token) {
-        alert("Token obrigatório");
-        return;
-      }
-      localStorage.setItem("github_token", token);
-      document.getElementById("editor").classList.remove("hidden");
-      carregarArquivo();
-    }
-
-    async function carregarArquivo() {
-      const token = document.getElementById("token").value;
-      const repo = document.getElementById("repo").value;
-      const branch = document.getElementById("branch").value;
-      const filepath = document.getElementById("filepath").value;
-
-      const url = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
-
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: "application/vnd.github.v3.raw"
-        }
-      });
-
-      if (!response.ok) {
-        alert("Erro ao carregar arquivo: " + response.statusText);
-        return;
-      }
-
-      const content = await response.text();
-      const json = JSON.parse(content);
-      renderizarAbas(json);
-    }
-
     function mostrarAba(nome) {
       ["usuarios", "times", "workflows"].forEach(id => {
         document.getElementById("aba-" + id).classList.add("hidden");
@@ -203,7 +110,12 @@
     }
 
     function renderizarAbas(dados) {
-      const workflows = dados.org;
+      if (!dados || !dados.automations || typeof dados.automations !== "object") {
+        alert("Formato inválido do arquivo access_control.json");
+        return;
+      }
+
+      const workflows = dados.automations;
       const usuarios = {};
       const times = {};
 
@@ -253,57 +165,55 @@
       mostrarAba("workflows");
     }
 
-    function adicionarTag(valor, tipo) {
-      const container = document.getElementById("tags-" + tipo);
-      if ([...container.children].some(tag => tag.textContent.includes(valor))) return;
-      const tag = document.createElement("div");
-      tag.className = "tag";
-      tag.textContent = valor;
-      const span = document.createElement("span");
-      span.textContent = "×";
-      span.onclick = () => tag.remove();
-      tag.appendChild(span);
-      container.appendChild(tag);
-    }
+    async function carregarArquivo() {
+      const token = document.getElementById("token").value;
+      const repo = document.getElementById("repo").value;
+      const branch = document.getElementById("branch").value;
+      const filepath = document.getElementById("filepath").value;
 
-    function filtrar(tipo) {
-      const input = document.getElementById("input-" + tipo).value.toLowerCase();
-      const lista = tipo === "user" ? usuarios : tipo === "team" ? times : workflows;
-      const sugestoes = lista.filter(item => item.toLowerCase().includes(input));
-      const div = document.getElementById("sugestoes-" + tipo);
-      div.innerHTML = "";
-      sugestoes.forEach(item => {
-        const btn = document.createElement("button");
-        btn.textContent = item;
-        btn.onclick = () => adicionarTag(item, tipo);
-        div.appendChild(btn);
+      const url = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github.v3.raw"
+        }
       });
+
+      if (!response.ok) {
+        alert("Erro ao carregar arquivo: " + response.statusText);
+        return;
+      }
+
+      const content = await response.text();
+      try {
+        const json = JSON.parse(content);
+        renderizarAbas(json);
+      } catch (e) {
+        alert("Erro ao interpretar JSON: " + e.message);
+      }
     }
 
-    function getTags(tipo) {
-      return [...document.getElementById("tags-" + tipo).children].map(tag => tag.firstChild.textContent);
+    function carregar() {
+      const token = document.getElementById("token").value;
+      if (!token) {
+        alert("Token obrigatório");
+        return;
+      }
+      localStorage.setItem("github_token", token);
+      carregarArquivo();
     }
 
     function preVisualizar() {
-      const dados = {
-        org: {
-          "build.yml": {
-            allowed_users: getTags("user"),
-            allowed_teams: getTags("team")
-          },
-          "deploy.yml": {
-            allowed_users: getTags("user"),
-            allowed_teams: getTags("team")
-          },
-          "test.yml": {
-            allowed_users: getTags("user"),
-            allowed_teams: getTags("team")
-          }
-        }
-      };
-      document.getElementById("preview-json").textContent = JSON.stringify(dados, null, 2);
-      document.getElementById("preview").classList.remove("hidden");
+      alert("Funcionalidade de pré-visualização futura.");
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedToken = localStorage.getItem("github_token");
+      if (savedToken) {
+        document.getElementById("token").value = savedToken;
+      }
+    });
   </script>
 </body>
 </html>
