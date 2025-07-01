@@ -3,71 +3,22 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gerenciador de Acessos</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 1000px;
-      margin: auto;
-    }
-    input, button, select {
-      display: block;
-      margin: 10px 0;
-      padding: 8px;
-      width: 100%;
-    }
-    .hidden {
-      display: none;
-    }
-    .tab-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .tab-buttons button {
-      padding: 10px;
-      cursor: pointer;
-      background: #ddd;
-      border: none;
-      border-radius: 5px;
-    }
-    .tab-content {
-      margin-top: 20px;
-    }
-    .bloco {
-      background: #f0f0f0;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-    }
-    .bloco h3 {
-      margin: 0 0 5px 0;
-    }
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    .tag {
-      background: #ccc;
-      padding: 5px 10px;
-      border-radius: 15px;
-    }
-    #preview {
-      background: #f9f9f9;
-      border: 1px dashed #aaa;
-      padding: 10px;
-      margin-top: 20px;
-      white-space: pre-wrap;
-    }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    .container { background: white; padding: 20px; border-radius: 8px; max-width: 1000px; margin: auto; }
+    input, button, select { display: block; margin: 10px 0; padding: 8px; width: 100%; }
+    .tab-buttons { display: flex; gap: 10px; margin-top: 20px; }
+    .tab-buttons button { padding: 10px; cursor: pointer; background: #ddd; border: none; border-radius: 5px; }
+    .tab-content { margin-top: 20px; }
+    .bloco { background: #f0f0f0; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+    .bloco h3 { margin: 0 0 5px 0; }
+    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+    .tag { background: #ccc; padding: 5px 10px; border-radius: 15px; display: flex; align-items: center; }
+    .tag.removida { background: #f8d7da; text-decoration: line-through; }
+    .tag span { margin-left: 8px; cursor: pointer; color: red; }
+    .hidden { display: none; }
+    #preview { background: #f9f9f9; border: 1px dashed #aaa; padding: 10px; margin-top: 20px; white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -81,7 +32,7 @@
     <input type="text" id="branch" value="gh-pages" />
     <label>Caminho do arquivo:</label>
     <input type="text" id="filepath" value="access_control.json" />
-    <button onclick="carregar()">Carregar</button>
+    <button onclick="carregarArquivo()">Carregar</button>
 
     <div id="abas" class="hidden">
       <div class="tab-buttons">
@@ -95,6 +46,8 @@
     </div>
 
     <button onclick="preVisualizar()">Pré-visualizar Alterações</button>
+    <button onclick="salvarAlteracoes()">Salvar Alterações</button>
+
     <div id="preview" class="hidden">
       <h2>Pré-visualização do Novo access_control.json</h2>
       <pre id="preview-json"></pre>
@@ -102,6 +55,9 @@
   </div>
 
   <script>
+    let dadosOriginais = {};
+    let shaAtual = "";
+
     function mostrarAba(nome) {
       ["usuarios", "times", "workflows"].forEach(id => {
         document.getElementById("aba-" + id).classList.add("hidden");
@@ -109,9 +65,35 @@
       document.getElementById("aba-" + nome).classList.remove("hidden");
     }
 
+    function carregarArquivo() {
+      const token = document.getElementById("token").value;
+      const repo = document.getElementById("repo").value;
+      const branch = document.getElementById("branch").value;
+      const filepath = document.getElementById("filepath").value;
+
+      const url = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
+
+      fetch(url, {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github.v3.raw"
+        }
+      })
+      .then(response => {
+        shaAtual = response.headers.get("etag");
+        return response.text();
+      })
+      .then(content => {
+        const json = JSON.parse(content);
+        dadosOriginais = json;
+        renderizarAbas(json);
+      })
+      .catch(err => alert("Erro ao carregar: " + err));
+    }
+
     function renderizarAbas(dados) {
-      if (!dados || !dados.automations || typeof dados.automations !== "object") {
-        alert("Formato inválido do arquivo access_control.json");
+      if (!dados || !dados.automations) {
+        alert("Formato inválido");
         return;
       }
 
@@ -135,7 +117,7 @@
       for (const [user, wfs] of Object.entries(usuarios)) {
         const bloco = document.createElement("div");
         bloco.className = "bloco";
-        bloco.innerHTML = `<h3>� ${user}</h3><div class="tags">${wfs.map(w => `<span class="tag">${w}</span>`).join("")}</div>`;
+        bloco.innerHTML = `<h3>� ${user}</h3><div class="tags">${wfs.map(w => criarTag(w, 'user', user)).join("")}</div>`;
         abaUsuarios.appendChild(bloco);
       }
 
@@ -144,7 +126,7 @@
       for (const [team, wfs] of Object.entries(times)) {
         const bloco = document.createElement("div");
         bloco.className = "bloco";
-        bloco.innerHTML = `<h3>� ${team}</h3><div class="tags">${wfs.map(w => `<span class="tag">${w}</span>`).join("")}</div>`;
+        bloco.innerHTML = `<h3>� ${team}</h3><div class="tags">${wfs.map(w => criarTag(w, 'team', team)).join("")}</div>`;
         abaTimes.appendChild(bloco);
       }
 
@@ -155,8 +137,8 @@
         bloco.className = "bloco";
         bloco.innerHTML = `
           <h3>� ${workflow}</h3>
-          <strong>� Usuários:</strong> <div class="tags">${acesso.allowed_users.map(u => `<span class="tag">${u}</span>`).join("")}</div>
-          <strong>� Times:</strong> <div class="tags">${acesso.allowed_teams.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+          <strong>� Usuários:</strong> <div class="tags">${acesso.allowed_users.map(u => criarTag(u, 'workflow-user', workflow)).join("")}</div>
+          <strong>� Times:</strong> <div class="tags">${acesso.allowed_teams.map(t => criarTag(t, 'workflow-team', workflow)).join("")}</div>
         `;
         abaWorkflows.appendChild(bloco);
       }
@@ -165,55 +147,72 @@
       mostrarAba("workflows");
     }
 
-    async function carregarArquivo() {
+    function criarTag(valor, tipo, chave) {
+      const id = `${tipo}-${chave}-${valor}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+      return `<span class="tag" id="${id}">${valor}<span onclick="toggleTag('${id}')">×</span></span>`;
+    }
+
+    function toggleTag(id) {
+      const tag = document.getElementById(id);
+      if (tag.classList.contains("removida")) {
+        tag.classList.remove("removida");
+      } else {
+        tag.classList.add("removida");
+      }
+    }
+
+    function preVisualizar() {
+      const novo = JSON.parse(JSON.stringify(dadosOriginais));
+      for (const [workflow, acesso] of Object.entries(novo.automations)) {
+        acesso.allowed_users = acesso.allowed_users.filter(u => {
+          const id = `workflow-user-${workflow}-${u}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+          const el = document.getElementById(id);
+          return el && !el.classList.contains("removida");
+        });
+        acesso.allowed_teams = acesso.allowed_teams.filter(t => {
+          const id = `workflow-team-${workflow}-${t}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+          const el = document.getElementById(id);
+          return el && !el.classList.contains("removida");
+        });
+      }
+      document.getElementById("preview-json").textContent = JSON.stringify(novo, null, 2);
+      document.getElementById("preview").classList.remove("hidden");
+    }
+
+    function salvarAlteracoes() {
       const token = document.getElementById("token").value;
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
       const filepath = document.getElementById("filepath").value;
 
-      const url = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
+      const novoConteudo = document.getElementById("preview-json").textContent;
+      const base64Content = btoa(unescape(encodeURIComponent(novoConteudo)));
 
-      const response = await fetch(url, {
+      const url = `https://api.github.com/repos/${repo}/contents/${filepath}`;
+
+      fetch(url, {
+        method: "PUT",
         headers: {
           Authorization: `token ${token}`,
-          Accept: "application/vnd.github.v3.raw"
+          Accept: "application/vnd.github.v3+json"
+        },
+        body: JSON.stringify({
+          message: "Atualização via página estática",
+          content: base64Content,
+          sha: shaAtual.replace(/"/g, ""),
+          branch: branch
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.content) {
+          alert("Arquivo salvo com sucesso!");
+        } else {
+          alert("Erro ao salvar: " + JSON.stringify(data));
         }
-      });
-
-      if (!response.ok) {
-        alert("Erro ao carregar arquivo: " + response.statusText);
-        return;
-      }
-
-      const content = await response.text();
-      try {
-        const json = JSON.parse(content);
-        renderizarAbas(json);
-      } catch (e) {
-        alert("Erro ao interpretar JSON: " + e.message);
-      }
+      })
+      .catch(err => alert("Erro: " + err));
     }
-
-    function carregar() {
-      const token = document.getElementById("token").value;
-      if (!token) {
-        alert("Token obrigatório");
-        return;
-      }
-      localStorage.setItem("github_token", token);
-      carregarArquivo();
-    }
-
-    function preVisualizar() {
-      alert("Funcionalidade de pré-visualização futura.");
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const savedToken = localStorage.getItem("github_token");
-      if (savedToken) {
-        document.getElementById("token").value = savedToken;
-      }
-    });
   </script>
 </body>
 </html>
