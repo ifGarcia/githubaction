@@ -46,30 +46,11 @@
       background: #f8d7da;
       text-decoration: line-through;
     }
-    .tag.new {
+    .tag.added {
       background: #d4edda;
     }
     .hidden {
       display: none;
-    }
-    .suggestions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    .suggestions button {
-      padding: 5px 10px;
-      border: none;
-      background: #ddd;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #preview {
-      background: #f9f9f9;
-      border: 1px dashed #aaa;
-      padding: 10px;
-      margin-top: 20px;
-      white-space: pre-wrap;
     }
     .tab-buttons {
       display: flex;
@@ -100,13 +81,12 @@
       flex-wrap: wrap;
       gap: 5px;
     }
-    .input-inline {
-      display: flex;
-      gap: 5px;
-      margin-top: 5px;
-    }
-    .input-inline input {
-      flex: 1;
+    #preview {
+      background: #f9f9f9;
+      border: 1px dashed #aaa;
+      padding: 10px;
+      margin-top: 20px;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -121,7 +101,7 @@
     <input type="text" id="branch" value="gh-pages" />
     <label>Caminho do arquivo:</label>
     <input type="text" id="filepath" value="access_control.json" />
-    <button onclick="carregar()">Carregar</button>
+    <button onclick="carregarArquivo()">Carregar</button>
 
     <div id="abas" class="hidden">
       <div class="tab-buttons">
@@ -145,19 +125,16 @@
 
   <script>
     let dadosOriginais = {};
-    let shaAtual = "";
+    let dadosEditados = {};
 
-    function carregar() {
-      const token = document.getElementById("token").value;
-      if (!token) {
-        alert("Token obrigatório");
-        return;
-      }
-      localStorage.setItem("github_token", token);
-      carregarArquivo();
+    function mostrarAba(nome) {
+      ["usuarios", "times", "workflows"].forEach(id => {
+        document.getElementById("aba-" + id).classList.add("hidden");
+      });
+      document.getElementById("aba-" + nome).classList.remove("hidden");
     }
 
-    async function carregarArquivo() {
+    function carregarArquivo() {
       const token = document.getElementById("token").value;
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
@@ -165,45 +142,24 @@
 
       const url = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
 
-      const response = await fetch(url, {
+      fetch(url, {
         headers: {
           Authorization: `token ${token}`,
           Accept: "application/vnd.github.v3.raw"
         }
-      });
-
-      if (!response.ok) {
-        alert("Erro ao carregar arquivo: " + response.statusText);
-        return;
-      }
-
-      const content = await response.text();
-      try {
-        const json = JSON.parse(content);
-        if (!json.automations) {
-          alert("Formato inválido");
-          return;
-        }
-        dadosOriginais = json;
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Erro ao carregar arquivo");
+        return res.text();
+      })
+      .then(text => {
+        const json = JSON.parse(text);
+        if (!json.automations) throw new Error("Formato inválido");
+        dadosOriginais = JSON.parse(JSON.stringify(json));
+        dadosEditados = JSON.parse(JSON.stringify(json));
         renderizarAbas(json);
-        document.getElementById("abas").classList.remove("hidden");
-        mostrarAba("workflows");
-      } catch (e) {
-        alert("Erro ao interpretar JSON");
-      }
-
-      const meta = await fetch(url.replace("&ref=", "?ref="), {
-        headers: { Authorization: `token ${token}` }
-      });
-      const metaJson = await meta.json();
-      shaAtual = metaJson.sha;
-    }
-
-    function mostrarAba(nome) {
-      ["usuarios", "times", "workflows"].forEach(id => {
-        document.getElementById("aba-" + id).classList.add("hidden");
-      });
-      document.getElementById("aba-" + nome).classList.remove("hidden");
+      })
+      .catch(err => alert(err.message));
     }
 
     function renderizarAbas(dados) {
@@ -247,58 +203,65 @@
         bloco.className = "bloco";
         bloco.innerHTML = `
           <h3>� ${workflow}</h3>
-          <strong>� Usuários:</strong> <div class="tags" id="users-${workflow}">${acesso.allowed_users.map(u => tagHTML(u, false)).join("")}</div>
-          <div class="input-inline"><input placeholder="Novo usuário" onkeydown="if(event.key==='Enter'){addTag('${workflow}','user',this.value);this.value='';}"></div>
-          <strong>� Times:</strong> <div class="tags" id="teams-${workflow}">${acesso.allowed_teams.map(t => tagHTML(t, false)).join("")}</div>
-          <div class="input-inline"><input placeholder="Novo time" onkeydown="if(event.key==='Enter'){addTag('${workflow}','team',this.value);this.value='';}"></div>
+          <strong>� Usuários:</strong>
+          <div class="tags" id="tags-users-${workflow}">${acesso.allowed_users.map(u => criarTagHTML(u, workflow, "user")).join("")}</div>
+          <input type="text" placeholder="Adicionar usuário..." onkeydown="adicionarTag(event, '${workflow}', 'user')" />
+          <strong>� Times:</strong>
+          <div class="tags" id="tags-teams-${workflow}">${acesso.allowed_teams.map(t => criarTagHTML(t, workflow, "team")).join("")}</div>
+          <input type="text" placeholder="Adicionar time..." onkeydown="adicionarTag(event, '${workflow}', 'team')" />
         `;
         abaWorkflows.appendChild(bloco);
       }
+
+      document.getElementById("abas").classList.remove("hidden");
+      mostrarAba("workflows");
     }
 
-    function tagHTML(valor, isNew) {
-      return `<span class="tag${isNew ? ' new' : ''}" onclick="toggleTag(this, ${isNew})">${valor}<span>×</span></span>`;
+    function criarTagHTML(valor, workflow, tipo, nova=false) {
+      const classe = nova ? "tag added" : "tag";
+      return `<span class="${classe}" data-wf="${workflow}" data-tipo="${tipo}" data-novo="${nova}" onclick="removerTag(this)">${valor}<span>×</span></span>`;
     }
 
-    function toggleTag(el, isNew) {
-      if (isNew) {
+    function adicionarTag(event, workflow, tipo) {
+      if (event.key !== "Enter") return;
+      const valor = event.target.value.trim();
+      if (!valor) return;
+      const container = document.getElementById(`tags-${tipo}s-${workflow}`);
+      const existente = [...container.children].some(tag => tag.textContent.includes(valor));
+      if (existente) return;
+      const span = document.createElement("span");
+      span.className = "tag added";
+      span.dataset.wf = workflow;
+      span.dataset.tipo = tipo;
+      span.dataset.novo = "true";
+      span.innerHTML = `${valor}<span onclick="removerTag(this.parentElement)">×</span>`;
+      container.appendChild(span);
+      event.target.value = "";
+    }
+
+    function removerTag(el) {
+      if (el.dataset.novo === "true") {
         el.remove();
       } else {
         el.classList.toggle("removed");
       }
     }
 
-    function addTag(workflow, tipo, valor) {
-      if (!valor.trim()) return;
-      const container = document.getElementById((tipo === "user" ? "users-" : "teams-") + workflow);
-      const span = document.createElement("span");
-      span.className = "tag new";
-      span.innerHTML = `${valor}<span>×</span>`;
-      span.onclick = () => span.remove();
-      container.appendChild(span);
-    }
-
     function preVisualizar() {
-      const novo = gerarNovoJSON();
+      const novo = JSON.parse(JSON.stringify(dadosOriginais));
+      for (const [workflow, acesso] of Object.entries(novo.automations)) {
+        const users = document.getElementById(`tags-users-${workflow}`);
+        const teams = document.getElementById(`tags-teams-${workflow}`);
+        acesso.allowed_users = [...users.children]
+          .filter(tag => !tag.classList.contains("removed"))
+          .map(tag => tag.childNodes[0].textContent);
+        acesso.allowed_teams = [...teams.children]
+          .filter(tag => !tag.classList.contains("removed"))
+          .map(tag => tag.childNodes[0].textContent);
+      }
+      dadosEditados = novo;
       document.getElementById("preview-json").textContent = JSON.stringify(novo, null, 2);
       document.getElementById("preview").classList.remove("hidden");
-    }
-
-    function gerarNovoJSON() {
-      const novo = { automations: {} };
-      for (const [workflow, acesso] of Object.entries(dadosOriginais.automations)) {
-        const users = [...document.getElementById("users-" + workflow).children]
-          .filter(tag => !tag.classList.contains("removed"))
-          .map(tag => tag.childNodes[0].textContent);
-        const teams = [...document.getElementById("teams-" + workflow).children]
-          .filter(tag => !tag.classList.contains("removed"))
-          .map(tag => tag.childNodes[0].textContent);
-        novo.automations[workflow] = {
-          allowed_users: users,
-          allowed_teams: teams
-        };
-      }
-      return novo;
     }
 
     async function salvarAlteracoes() {
@@ -306,29 +269,36 @@
       const repo = document.getElementById("repo").value;
       const branch = document.getElementById("branch").value;
       const filepath = document.getElementById("filepath").value;
-      const url = `https://api.github.com/repos/${repo}/contents/${filepath}`;
 
-      const novoConteudo = gerarNovoJSON();
-      const novoBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(novoConteudo, null, 2))));
+      const getUrl = `https://api.github.com/repos/${repo}/contents/${filepath}?ref=${branch}`;
+      const getResponse = await fetch(getUrl, {
+        headers: {
+          Authorization: `token ${token}`
+        }
+      });
+      const getData = await getResponse.json();
+      const sha = getData.sha;
 
-      const response = await fetch(url, {
+      const novoBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(dadosEditados, null, 2))));
+
+      const putResponse = await fetch(getUrl, {
         method: "PUT",
         headers: {
           Authorization: `token ${token}`,
           Accept: "application/vnd.github.v3+json"
         },
         body: JSON.stringify({
-          message: "Atualizando access_control.json via página",
+          message: "Atualizando access_control.json via página estática",
           content: novoBase64,
-          sha: shaAtual,
+          sha: sha,
           branch: branch
         })
       });
 
-      if (response.ok) {
-        alert("Arquivo salvo com sucesso!");
+      if (putResponse.ok) {
+        alert("Arquivo atualizado com sucesso!");
       } else {
-        alert("Erro ao salvar: " + (await response.text()));
+        alert("Erro ao salvar: " + (await putResponse.text()));
       }
     }
   </script>
